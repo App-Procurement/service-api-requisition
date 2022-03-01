@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    
+    <!--
+        Added the entity Document.
+    -->
+    <changeSet id="20210722052455-1" author="jhipster">
+        <createTable tableName="document">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="file_name" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="file_type" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="file_ext" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="file_size" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="storage_location" type="varchar(255)" remarks="LOCAL or S3 or AZURE">
+                <constraints nullable="true" />
+            </column>
+            <column name="local_file_path" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="s_3_bucket" type="varchar(255)" remarks="S3 bucket name. image file stored on aws s3 bucket">
+                <constraints nullable="true" />
+            </column>
+            <column name="s_3_url" type="varchar(255)" remarks="S3 url of image file">
+                <constraints nullable="true" />
+            </column>
+            <column name="azure_url" type="varchar(255)" remarks="AZURE url of image file">
+                <constraints nullable="true" />
+            </column>
+            <column name="source_of_origin" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="source_id" type="bigint" remarks="DB id of an object like invoice, committee member id etc..">
+                <constraints nullable="true" />
+            </column>
+            <column name="identifier" type="varchar(255)" remarks="PROFILE_IMAGE, DEGREE, CURRENCY_SYMBOL etc..">
+                <constraints nullable="true" />
+            </column>
+            <column name="created_on" type="datetime">
+                <constraints nullable="true" />
+            </column>
+            <column name="created_by" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="updated_on" type="datetime">
+                <constraints nullable="true" />
+            </column>
+            <column name="updated_by" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="requisition_line_item_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <column name="contact_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
+        </createTable>
+        <dropDefaultValue tableName="document" columnName="created_on" columnDataType="datetime"/>
+        <dropDefaultValue tableName="document" columnName="updated_on" columnDataType="datetime"/>
+    </changeSet>
+    
+    
+       <changeSet id="20210722052455-1-data" author="jhipster" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/document.csv"
+                  separator=";"
+                  tableName="document">
+             <column name="id" type="numeric"/>
+            <column name="file_name" type="string"/>
+            <column name="file_type" type="string"/>
+            <column name="file_ext" type="string"/>
+            <column name="file_size" type="numeric"/>
+            <column name="storage_location" type="string" />
+            <column name="local_file_path" type="string"/>
+            <column name="s_3_bucket" type="string"/>
+            <column name="s_3_url" type="string" />
+            <column name="azure_url" type="string" />
+            <column name="source_of_origin" type="string"/>
+            <column name="source_id" type="numeric" />
+            <column name="identifier" type="string" />
+            <column name="created_on" type="${datetimeType}"/>
+            <column name="created_by" type="string"/>
+            <column name="updated_on" type="${datetimeType}"/>
+            <column name="updated_by" type="string"/>
+            <column name="requisition_line_item_id" type="numeric"/>
+            <column name="contact_id" type="numeric"/>
+            <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
+        </loadData>
+    </changeSet>
+
+ </databaseChangeLog>

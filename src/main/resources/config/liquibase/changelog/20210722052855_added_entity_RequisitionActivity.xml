@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    
+    <!--
+        Added the entity RequisitionActivity.
+    -->
+    <changeSet id="20210722052855-1" author="jhipster">
+        <createTable tableName="requisition_activity">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="requisition_no" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="created_on" type="datetime">
+                <constraints nullable="true" />
+            </column>
+            <column name="created_by" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="updated_on" type="datetime">
+                <constraints nullable="true" />
+            </column>
+            <column name="updated_by" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="status" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="progress_stage" type="varchar(255)" remarks="progressStage : ReadyToBuy, POGenerated, SendToVendors,\nQuotationReceived,QuotationApproved,InvoiceGenerated,\nPaymentCompleted">
+                <constraints nullable="true" />
+            </column>
+            <column name="financial_year" type="integer">
+                <constraints nullable="true" />
+            </column>
+            <column name="type" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="total_price" type="integer">
+                <constraints nullable="true" />
+            </column>
+            <column name="notes" type="varchar(5000)">
+                <constraints nullable="true" />
+            </column>
+            <column name="due_date" type="date">
+                <constraints nullable="true" />
+            </column>
+            <column name="requisition_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
+        </createTable>
+        <dropDefaultValue tableName="requisition_activity" columnName="created_on" columnDataType="datetime"/>
+        <dropDefaultValue tableName="requisition_activity" columnName="updated_on" columnDataType="datetime"/>
+    </changeSet>
+    
+    
+     <!--  <changeSet id="20210722052855-1-data" author="jhipster" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/requisition_activity.csv"
+                  separator=";"
+                  tableName="requisition_activity">
+            <column name="id" type="numeric"/>
+            <column name="requisition_no" type="string"/>
+            <column name="created_on" type="${datetimeType}"/>
+            <column name="created_by" type="string"/>
+            <column name="updated_on" type="${datetimeType}"/>
+            <column name="updated_by" type="string"/>
+            <column name="status" type="string"/>
+            <column name="progress_stage" type="string"/>
+            <column name="financial_year" type="numeric"/>
+            <column name="type" type="string"/>
+            <column name="total_price" type="numeric"/>
+            <column name="notes" type="string"/>
+            <column name="due_date" type="date"/>
+             <column name="requisition_id" type="numeric"/>
+            jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here
+        </loadData>
+    </changeSet> -->
+
+
+
+</databaseChangeLog>

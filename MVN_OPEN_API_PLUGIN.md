@@ -1,0 +1,31 @@
+```
+<build>
+  <plugins>
+    <plugin>
+        <groupId>org.openapitools</groupId>
+        <artifactId>openapi-generator-maven-plugin</artifactId>
+        <version>${openapi-generator-maven-plugin.version}</version>
+        <executions>
+            <execution>
+                <goals>
+                    <goal>generate</goal>
+                </goals>
+                <configuration>
+                    <inputSpec>${project.basedir}/src/main/resources/swagger/api.yml</inputSpec>
+                    <generatorName>spring</generatorName>
+                    <apiPackage>com.synectiks.procurement.web.api</apiPackage>
+                    <modelPackage>com.synectiks.procurement.web.api.model</modelPackage>
+                    <supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
+                    <importMappings>Problem=org.zalando.problem.Problem</importMappings>
+                    <skipValidateSpec>false</skipValidateSpec>
+                    <configOptions>
+                        <delegatePattern>true</delegatePattern>
+                        <title>procurement</title>
+                    </configOptions>
+                </configuration>
+            </execution>
+        </executions>
+    </plugin>
+  </plugins>
+</build>
+```

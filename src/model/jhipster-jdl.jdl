@@ -1,0 +1,418 @@
+entity Document {
+	fileName String
+    fileType String
+    fileExt String
+	fileSize Long
+    storageLocation String /** LOCAL or S3 or AZURE */
+	localFilePath String
+    s3Bucket String /** S3 bucket name. image file stored on aws s3 bucket */
+    s3Url String /** S3 url of image file */
+	azureUrl String /** AZURE url of image file */
+    sourceOfOrigin String
+    sourceId Long /** DB id of an object like invoice, committee member id etc.. */
+    identifier String /** PROFILE_IMAGE, DEGREE, CURRENCY_SYMBOL etc.. */
+    createdOn Instant
+    createdBy String
+    updatedOn Instant
+    updatedBy String
+}
+
+entity DataFile {
+	fileName String
+    fileType String
+    fileExt String
+	fileSize Long
+    storageLocation String /** LOCAL or S3 or AZURE */
+	cloudName String
+    s3Bucket String /** S3 bucket name. image file stored on aws s3 bucket */
+    s3Url String /** S3 url of image file */
+    sourceOfOrigin String
+    createdOn Instant
+    createdBy String
+ }
+
+
+entity Department {
+	name String
+}
+
+entity Currency {
+	code String
+    countryName String
+    countryCode String
+}
+
+entity Requisition {
+	/*requisitionNo : Unique number for each requistion*/
+    requisitionNo String
+    /*createdOn : request date*/
+    createdOn Instant
+    /*createdBy : requested by*/
+    createdBy String
+    /*updatedOn : request update date*/
+    updatedOn Instant
+    /*updatedOn : request update by*/
+    updatedBy String
+    status String
+    /**
+    *progressStage : ReadyToBuy, POGenerated, SendToVendors, 
+    *QuotationReceived,QuotationApproved,InvoiceGenerated,
+    *PaymentCompleted
+    **/
+    progressStage String
+    financialYear Integer
+    /*type : purchase*/
+    type String
+    totalPrice Integer 
+    notes String maxlength(5000)
+    dueDate LocalDate
+}
+
+entity RequisitionActivity {
+	/*requisitionNo : Unique number for each requistion*/
+    requisitionNo String
+    /*createdOn : request date*/
+    createdOn Instant
+    /*createdBy : requested by*/
+    createdBy String
+    /*updatedOn : request update date*/
+    updatedOn Instant
+    /*updatedOn : request update by*/
+    updatedBy String
+    
+    status String
+    /**
+    *progressStage : ReadyToBuy, POGenerated, SendToVendors, 
+    *QuotationReceived,QuotationApproved,InvoiceGenerated,
+    *PaymentCompleted
+    **/
+    progressStage String
+    financialYear Integer
+    /*type : purchase*/
+    type String
+    totalPrice Integer 
+    notes String maxlength(5000)
+    dueDate LocalDate
+	requisitionId Long
+}
+
+entity RequisitionLineItem {
+	/*createdOn : request date*/
+    createdOn Instant
+    /*createdBy : requested by*/
+    createdBy String
+    /*updatedOn : request update date*/
+    updatedOn Instant
+    /*updatedOn : request update by*/
+    updatedBy String
+    status String
+    /**
+    *progressStage : ReadyToBuy, POGenerated, SendToVendors, 
+    *QuotationReceived,QuotationApproved,InvoiceGenerated,
+    *PaymentCompleted
+    **/
+    progressStage String
+    itemDescription String
+    orderQuantity Integer
+    price Integer
+    priority String
+    notes String maxlength(5000)
+    dueDate LocalDate
+    ratePerItem Integer
+}
+
+entity RequisitionLineItemActivity {
+	/*createdOn : request date*/
+    createdOn Instant
+    /*createdBy : requested by*/
+    createdBy String
+    /*updatedOn : request update date*/
+    updatedOn Instant
+    /*updatedOn : request update by*/
+    updatedBy String
+    status String
+    /**
+    *progressStage : ReadyToBuy, POGenerated, SendToVendors, 
+    *QuotationReceived,QuotationApproved,InvoiceGenerated,
+    *PaymentCompleted
+    **/
+    progressStage String
+    itemDescription String
+    orderQuantity Integer
+    price Integer
+    priority String
+    notes String maxlength(5000)
+    dueDate LocalDate
+    ratePerItem Integer
+	requisitionLineItemId Long
+}
+
+entity PurchaseOrder {
+	poNo String
+    status String
+    createdOn Instant
+    createdBy String
+    updatedOn Instant
+    updatedBy String
+    dueDate LocalDate
+    termsAndConditions String maxlength(5000)
+    notes String maxlength(5000)
+}
+
+entity Quotation {
+	quotationNo String
+    status String
+    createdOn Instant
+    createdBy String
+    updatedOn Instant
+    updatedBy String
+    dueDate LocalDate
+    notes String maxlength(5000)
+}
+
+entity QuotationActivity {
+	quotationNo String
+    status String
+    createdOn Instant
+    createdBy String
+    updatedOn Instant
+    updatedBy String
+    dueDate LocalDate
+    notes String maxlength(5000)
+	quotationId Long
+}
+
+entity Invoice {
+	invoiceNo String
+    amount Integer
+    modeOfPayment String
+    txnRefNo String
+    chequeOrDdNo String
+    issuerBank String
+    status String
+    createdOn Instant
+    createdBy String
+    updatedOn Instant
+    updatedBy String
+    dueDate LocalDate
+    notes String maxlength(5000)
+}
+
+entity InvoiceActivity {
+	invoiceNo String
+    amount Integer
+    modeOfPayment String
+    txnRefNo String
+    chequeOrDdNo String
+    issuerBank String
+    status String
+    createdOn Instant
+    createdBy String
+    updatedOn Instant
+    updatedBy String
+    dueDate LocalDate
+    notes String maxlength(5000)
+	invoiceId Long
+}
+
+entity Vendor {
+	firstName String
+    middleName String
+    lastName String
+    phoneNumber String
+    email String
+    address String
+    zipCode String
+    status String
+    createdOn Instant
+    createdBy String
+    updatedOn Instant
+    updatedBy String
+}
+
+entity Contact {
+	firstName String
+    middleName String 
+    lastName String
+    phoneNumber String
+    email String
+    isActive String
+    inviteStatus String
+    invitationLink String
+    inviteSentOn Instant
+    /*designation: */
+    designation String
+    /*jobType: internal, contractor */
+    jobType String
+    createdOn Instant
+    createdBy String
+    updatedOn Instant
+    updatedBy String
+    notes String maxlength(5000)
+}
+
+entity ContactActivity {
+	firstName String
+    middleName String 
+    lastName String
+    phoneNumber String
+    email String
+    isActive String
+    inviteStatus String
+    invitationLink String
+    inviteSentOn Instant
+    /*designation: */
+    designation String
+    /*jobType: internal, contractor */
+    jobType String
+    createdOn Instant
+    createdBy String
+    updatedOn Instant
+    updatedBy String
+    notes String maxlength(5000)
+	contactId Long
+}
+
+
+
+entity VendorRequisitionBucket{
+	status String
+	stages String
+    createdOn Instant
+    createdBy String
+    updatedOn Instant
+    updatedBy String
+    notes String maxlength(5000)
+}
+
+entity Roles {
+	name String
+    description String
+    status String
+    createdOn Instant
+    createdBy String
+    updatedOn Instant
+    updatedBy String
+    securityserviceId Long
+}
+
+entity Committee {
+	name String
+    type String
+    status String
+    createdOn Instant
+    createdBy String
+    updatedOn Instant
+    updatedBy String
+    notes String maxlength(5000)
+}
+
+entity CommitteeActivity {
+	name String
+    type String
+    status String
+    createdOn Instant
+    createdBy String
+    updatedOn Instant
+    updatedBy String
+    notes String maxlength(5000)
+	committeeId Long
+}
+
+entity CommitteeMember {
+	name String
+    company String
+    department String
+    phoneNumber String
+    email String
+    designation String
+    createdOn Instant
+    createdBy String
+    updatedOn Instant
+    updatedBy String
+}
+
+entity CommitteeAndMemberLink{
+	status String 
+}
+
+entity RolesGroup {		 
+  group Boolean
+}
+
+entity Rules{
+    name String
+    description String maxlength(5000)
+    status String
+    rule String maxlength(10000)
+    createdOn Instant
+    createdBy String
+    updatedOn Instant
+    updatedBy String
+}
+
+entity Buyer {
+	firstName String
+    middleName String
+    lastName String
+    phoneNumber String
+    email String
+    address String
+    zipCode String
+    status String
+    createdOn Instant
+    createdBy String
+    updatedOn Instant
+    updatedBy String
+}
+
+entity RolesRulesLink{
+	status String
+    createdOn Instant
+    createdBy String
+    updatedOn Instant
+    updatedBy String 
+}
+
+relationship OneToOne {
+	Requisition{department} to Department,
+    Requisition{currency} to Currency,
+    PurchaseOrder{requisition} to Requisition,
+    Quotation{purchaseOrder} to PurchaseOrder,
+    Quotation{vendor} to Vendor,
+    Invoice{quotation} to Quotation,
+    Quotation{document} to Document,
+    Invoice{document} to Document,
+    Contact{owner} to Contact,
+    RolesGroup{roles} to Roles,
+}
+
+relationship OneToMany {
+	Requisition{requisitionLineItemList} to RequisitionLineItem,
+    RequisitionLineItem{documentList} to Document,
+    Contact{documentList} to Document,
+    Requisition {requisition} to VendorRequisitionBucket,
+    Vendor {vendor} to VendorRequisitionBucket,
+}
+
+relationship ManyToOne {
+	Rules{roles} to Roles,
+//	CommitteeMembers{committee} to Committee,
+	CommitteeAndMemberLink{committee} to Committee,
+	CommitteeAndMemberLink{committeeMember} to CommitteeMember,
+	
+	RolesRulesLink {rules} to Rules,
+	RolesRulesLink {roles} to Roles
+}
+
+//relationship ManyToMany {
+//	Committee{contact} to Contact{committee}
+//}
+
+
+
+paginate Document, Department, Requisition,
+RequisitionActivity, RequisitionLineItem, RequisitionLineItemActivity, 
+PurchaseOrder, Quotation, QuotationActivity, Invoice, InvoiceActivity,
+Contact, ContactActivity, Committee, CommitteeActivity, Vendor with infinite-scroll
+paginate Currency with pagination

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    
+    <!--
+        Added the entity PurchaseOrder.
+    -->
+    <changeSet id="20210722053155-1" author="jhipster">
+        <createTable tableName="purchase_order">
+            <column name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="po_no" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="status" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="created_on" type="datetime">
+                <constraints nullable="true" />
+            </column>
+            <column name="created_by" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="updated_on" type="datetime">
+                <constraints nullable="true" />
+            </column>
+            <column name="updated_by" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="due_date" type="date">
+                <constraints nullable="true" />
+            </column>
+            <column name="terms_and_conditions" type="varchar(5000)">
+                <constraints nullable="true" />
+            </column>
+            <column name="notes" type="varchar(5000)">
+                <constraints nullable="true" />
+            </column>
+            <column name="requisition_id" type="bigint">
+                <constraints unique="true" nullable="true" uniqueConstraintName="ux_purchase_order_requisition_id" />
+            </column>
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
+        </createTable>
+        <dropDefaultValue tableName="purchase_order" columnName="created_on" columnDataType="datetime"/>
+        <dropDefaultValue tableName="purchase_order" columnName="updated_on" columnDataType="datetime"/>
+    </changeSet>
+    
+     <changeSet id="20210722053155-1-data" author="jhipster" context="faker">
+        <loadData
+                  file="config/liquibase/fake-data/purchase_order.csv"
+                  separator=";"
+                  tableName="purchase_order">
+            <column name="id" type="numeric"/>
+            <column name="po_no" type="string"/>
+            <column name="status" type="string"/>
+            <column name="created_on" type="datetime"/>
+            <column name="created_by" type="string"/>
+            <column name="updated_on" type="datetime"/>
+            <column name="updated_by" type="string"/>
+            <column name="due_date" type="date"/>
+            <column name="terms_and_conditions" type="string"/>
+            <column name="notes" type="string"/>
+            <column name="requisition_id" type="numeric"/>
+            <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
+        </loadData>
+    </changeSet>
+    
+
+</databaseChangeLog>

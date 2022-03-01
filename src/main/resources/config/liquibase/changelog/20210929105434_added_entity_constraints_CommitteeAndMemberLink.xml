@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd">
+    <!--
+        Added the constraints for entity CommitteeAndMemberLink.
+    -->
+    <changeSet id="20210929105434-2" author="jhipster">
+        
+        <addForeignKeyConstraint baseColumnNames="committee_id"
+                                 baseTableName="committee_and_member_link"
+                                 constraintName="fk_committee_and_member_link_committee_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="committee"/>
+
+        <addForeignKeyConstraint baseColumnNames="committee_member_id"
+                                 baseTableName="committee_and_member_link"
+                                 constraintName="fk_committee_and_member_link_committee_member_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="committee_member"/>
+
+    </changeSet>
+</databaseChangeLog>
