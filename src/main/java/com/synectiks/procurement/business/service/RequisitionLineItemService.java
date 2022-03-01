@@ -1,5 +1,6 @@
 package com.synectiks.procurement.business.service;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -17,7 +18,11 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.config.Constants;
 import com.synectiks.procurement.domain.Requisition;
@@ -39,15 +44,18 @@ public class RequisitionLineItemService {
 
 	@Autowired
 	private RequisitionRepository requisitionRepository;
-	
+
 	@Autowired
 	private RequisitionLineItemActivityRepository requisitionLineItemActivityRepository;
+
+	@Autowired
+	private RequisitionService requisitionService;
 
 	public RequisitionLineItem addRequisitionLineItem(RequisitionLineItem obj) {
 		logger.info("Add requisition line item");
 		obj = requisitionLineItemRepository.save(obj);
 
-		if (obj != null) {  			 
+		if (obj != null) {
 			logger.info("Saving requisition line item acitivity");
 			RequisitionLineItemActivity requisitionLineItemActivity = new RequisitionLineItemActivity();
 			BeanUtils.copyProperties(obj, requisitionLineItemActivity);
@@ -56,15 +64,21 @@ public class RequisitionLineItemService {
 					.addRequisitionLineItemActivity(requisitionLineItemActivity);
 			logger.info("Requisition line item acitivity saved successfully");
 		}
-
 		return obj;
 	}
 
 	@Transactional
-	public RequisitionLineItem addRequisitionLineItem(ObjectNode obj)  {
+	public RequisitionLineItem addRequisitionLineItem(String obj1, MultipartFile[] requisitionLineItemFile)
+			throws IOException {
+
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode obj = (ObjectNode) mapper.readTree(obj1);
+
 		RequisitionLineItem requisitionLineItem = new RequisitionLineItem();
 
-		Optional<Requisition> oReq = requisitionRepository.findById(Long.parseLong(obj.get("id").asText()));
+		Optional<Requisition> oReq = requisitionRepository.findById(Long.parseLong(obj.get("requisitionId").asText()));
+
+		Requisition requisition = oReq.get();
 		if (!oReq.isPresent()) {
 			logger.error("Requisition line item cannot be added. Requisition missing");
 			return null;
@@ -85,6 +99,10 @@ public class RequisitionLineItemService {
 
 		if (obj.get("orderQuantity") != null) {
 			requisitionLineItem.setOrderQuantity(obj.get("orderQuantity").asInt());
+		}
+
+		if (obj.get("ratePerItem") != null) {
+			requisitionLineItem.setRatePerItem(obj.get("ratePerItem").asInt());
 		}
 
 		if (obj.get("price") != null) {
@@ -138,12 +156,32 @@ public class RequisitionLineItemService {
 			logger.info("Requisition line item acitivity added successfully");
 		}
 
+		List<RequisitionLineItem> liteItemList = requisitionService.getLineItemFromFile(requisitionLineItemFile);
+		liteItemList.add(requisitionLineItem);
+
+		int totalAmt = 0;
+		for (RequisitionLineItem rqLnItm : liteItemList) {
+			int amt = rqLnItm.getOrderQuantity() * rqLnItm.getRatePerItem();
+			totalAmt = totalAmt + amt;
+		}
+
+		requisition.setTotalPrice(totalAmt);
+		requisitionRepository.save(requisition);
+
+		requisitionService.saveRequisitionLineItem(requisition, liteItemList);
+
 		return requisitionLineItem;
 	}
 
 	@Transactional
-	public RequisitionLineItem updateRequisitionLineItem(ObjectNode obj) {
+	public RequisitionLineItem updateRequisitionLineItem(String obj1, MultipartFile[] requisitionLineItemFile)
+			throws IOException {
 		logger.info("Update Requisition line item");
+
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode obj = (ObjectNode) mapper.readTree(obj1);
+		
+		
 
 		Optional<RequisitionLineItem> orqli = requisitionLineItemRepository
 				.findById(Long.parseLong(obj.get("id").asText()));
@@ -153,6 +191,14 @@ public class RequisitionLineItemService {
 		}
 
 		RequisitionLineItem requisitionLineItem = orqli.get();
+		
+		Requisition requisition = requisitionLineItem.getRequisition();
+		
+		if (requisition == null) {
+			logger.error("Requisition line item cannot be updated. Requisition missing");
+			return null;
+		}
+		
 		if (obj.get("status") != null) {
 			requisitionLineItem.setStatus(obj.get("status").asText());
 		}
@@ -163,6 +209,10 @@ public class RequisitionLineItemService {
 
 		if (obj.get("itemDescription") != null) {
 			requisitionLineItem.setItemDescription(obj.get("itemDescription").asText());
+		}
+
+		if (obj.get("ratePerItem") != null) {
+			requisitionLineItem.setRatePerItem(obj.get("ratePerItem").asInt());
 		}
 
 		if (obj.get("orderQuantity") != null) {
@@ -208,6 +258,22 @@ public class RequisitionLineItemService {
 					.addRequisitionLineItemActivity(requisitionLineItemActivity);
 			logger.info("Requisition line item acitivity added successfully");
 		}
+
+		List<RequisitionLineItem> liteItemList = requisitionService
+				.getLineItemFromFileForUpdate(requisitionLineItemFile);
+		liteItemList.add(requisitionLineItem);
+
+		int totalAmt = 0;
+		for (RequisitionLineItem rqLnItm : liteItemList) {
+			int amt = rqLnItm.getOrderQuantity() * rqLnItm.getRatePerItem();
+			totalAmt = totalAmt + amt;
+		}
+
+		requisition.setTotalPrice(totalAmt);
+		requisitionRepository.save(requisition);
+
+		requisitionService.saveRequisitionLineItem(requisition, liteItemList);
+
 		return requisitionLineItem;
 
 	}
@@ -259,19 +325,20 @@ public class RequisitionLineItemService {
 			requisitionLineItem.setUpdatedOn(instant);
 			isFilter = true;
 		}
-	    if (requestObj.get("updatedBy") != null) {
-	    	requisitionLineItem.setUpdatedBy(requestObj.get("updatedBy"));
+		if (requestObj.get("updatedBy") != null) {
+			requisitionLineItem.setUpdatedBy(requestObj.get("updatedBy"));
 			isFilter = true;
 		}
-	    
-	    if (requestObj.get("requisitionId") != null) {
-	    	Optional<Requisition> oReq = requisitionRepository.findById(Long.parseLong(requestObj.get("requisitionId")));
-			if(oReq.isPresent()) {
+
+		if (requestObj.get("requisitionId") != null) {
+			Optional<Requisition> oReq = requisitionRepository
+					.findById(Long.parseLong(requestObj.get("requisitionId")));
+			if (oReq.isPresent()) {
 				requisitionLineItem.setRequisition(oReq.get());
 			}
 			isFilter = true;
 		}
-	    
+
 		List<RequisitionLineItem> list = null;
 		if (isFilter) {
 			list = this.requisitionLineItemRepository.findAll(Example.of(requisitionLineItem),

@@ -389,7 +389,7 @@ public class RequisitionService {
 		return requisition;
 	}
 
-	private void saveRequisitionLineItem(Requisition requisition, List<RequisitionLineItem> liteItemList) {
+	 void saveRequisitionLineItem(Requisition requisition, List<RequisitionLineItem> liteItemList) {
 		logger.info("Saving requisition line items");
 		for (RequisitionLineItem reqLineItem : liteItemList) {
 			logger.debug("Requisition line item: " + reqLineItem.toString());
@@ -712,7 +712,8 @@ public class RequisitionService {
 		List<Requisition> list = null;
 		if (isFilter) {
 			list = this.requisitionRepository.findAll(Example.of(requisition), Sort.by(Direction.DESC, "id"));
-		} else {list = this.requisitionRepository.findAll(Sort.by(Direction.DESC, "id"));
+		} else {
+			list = this.requisitionRepository.findAll(Sort.by(Direction.DESC, "id"));
 		}
 
 		Date fromDate = null;
