@@ -43,11 +43,8 @@ public class RequisitionLineItemController {
 		try {
 			requisitionLineItem = requisitionLineItemService.addRequisitionLineItem(obj, requisitionLineItemFile);
 			return ResponseEntity.status(HttpStatus.OK).body(requisitionLineItem);
-		} catch (JsonMappingException e) {
-			logger.error("Add requisition line item failed. JsonMappingException: ", e);
-			throw e;
-		} catch (JsonProcessingException e) {
-			logger.error("Add requisition line item failed. JsonProcessingException: ", e);
+		} catch (IOException e) {
+			logger.error("Add requisition line item failed. IOException: ", e);
 			throw e;
 		}
 	}
@@ -57,8 +54,14 @@ public class RequisitionLineItemController {
 			@RequestParam(name = "requisitionLineItemFile", required = false) MultipartFile[] requisitionLineItemFile,
 			@RequestParam("obj") String obj) throws IOException {
 		logger.info("Request to update a requsition");
-		RequisitionLineItem requisitionLineItem = requisitionLineItemService.updateRequisitionLineItem(obj, requisitionLineItemFile);
-		return ResponseEntity.status(HttpStatus.OK).body(requisitionLineItem);
+		try {
+			RequisitionLineItem requisitionLineItem = requisitionLineItemService.updateRequisitionLineItem(obj,
+					requisitionLineItemFile);
+			return ResponseEntity.status(HttpStatus.OK).body(requisitionLineItem);
+		} catch (IOException e) {
+			logger.error("Add requisition line item failed. IOException: ", e);
+			throw e;
+		}
 	}
 
 	@GetMapping("/requisitionLineItem")
