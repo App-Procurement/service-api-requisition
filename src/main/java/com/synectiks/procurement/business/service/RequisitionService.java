@@ -389,7 +389,7 @@ public class RequisitionService {
 		return requisition;
 	}
 
-	private void saveRequisitionLineItem(Requisition requisition, List<RequisitionLineItem> liteItemList) {
+	public void saveRequisitionLineItem(Requisition requisition, List<RequisitionLineItem> liteItemList) {
 		logger.info("Saving requisition line items");
 		for (RequisitionLineItem reqLineItem : liteItemList) {
 			logger.debug("Requisition line item: " + reqLineItem.toString());
