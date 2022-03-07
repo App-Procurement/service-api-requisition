@@ -376,7 +376,7 @@ public class RequisitionService {
 			for (RequisitionLineItem requisitionLineItem : list) {
 				requisitionLineItem.setStatus(Constants.STATUS_DEACTIVE);
 				
-				requisitionLineItem = requisitionLineItemRepository.save(requisitionLineItem);
+//				requisitionLineItem = requisitionLineItemRepository.save(requisitionLineItem);
 				
 				requisitionLineItemService.addRequisitionLineItem(requisitionLineItem);
 				
@@ -389,7 +389,7 @@ public class RequisitionService {
 		return requisition;
 	}
 
-	 void saveRequisitionLineItem(Requisition requisition, List<RequisitionLineItem> liteItemList) {
+	private void saveRequisitionLineItem(Requisition requisition, List<RequisitionLineItem> liteItemList) {
 		logger.info("Saving requisition line items");
 		for (RequisitionLineItem reqLineItem : liteItemList) {
 			logger.debug("Requisition line item: " + reqLineItem.toString());
@@ -712,8 +712,7 @@ public class RequisitionService {
 		List<Requisition> list = null;
 		if (isFilter) {
 			list = this.requisitionRepository.findAll(Example.of(requisition), Sort.by(Direction.DESC, "id"));
-		} else {
-			list = this.requisitionRepository.findAll(Sort.by(Direction.DESC, "id"));
+		} else {list = this.requisitionRepository.findAll(Sort.by(Direction.DESC, "id"));
 		}
 
 		Date fromDate = null;
@@ -800,7 +799,8 @@ public class RequisitionService {
 	}
 
 	@Transactional
-	public void sendRequisitionToVendor(List<ObjectNode> list) {
+	public List<VendorRequisitionBucket> sendRequisitionToVendor(List<ObjectNode> list) {
+		List<VendorRequisitionBucket> vReqList = new ArrayList<>();
 		for (ObjectNode obj : list) {
 			VendorRequisitionBucket bucket = new VendorRequisitionBucket();
 			logger.debug("Send new requisition to vendor: " + obj.toString());
@@ -838,8 +838,10 @@ public class RequisitionService {
 			bucket.setCreatedOn(now);
 			bucket.setUpdatedOn(now);
 			bucket = vendorRequisitionBucketRepository.save(bucket);
+			vReqList.add(bucket);
 			logger.info("Bucket added successfully");
 		}
+		return vReqList;
 	}
 
 	@Transactional
@@ -955,32 +957,26 @@ public class RequisitionService {
 //
 //	}
 
-	public boolean approveRequisition(ObjectNode obj){
+	public Boolean approveRequisition(ObjectNode obj){
 		logger.info("Getting requisition by id: " + obj);
 
-		try {
-			if (obj.get("requisitionId") == null) {
-				logger.error("Requision id not found. Cannot approve requisition.");
-				return false;
-			}
-
-			Optional<Requisition> req = requisitionRepository.findById(obj.get("requisitionId").asLong());
-			if (!req.isPresent()) {
-				logger.error("Requision not found. Cannot approve requisition.");
-				return false;
-			}
-
-			Requisition requisition = req.get();
-			requisition.setStatus(Constants.PROGRESS_STAGE_APPROVED);
-			requisition = requisitionRepository.save(requisition);
-			saveRequisitionActivity(requisition);
-			logger.info("Requisition approved successfully");
-			return true;
-
-		} catch (Exception e) {
-			logger.error("Approve requisition failed. Exception: ", e);
-			return false;
+		if (obj.get("requisitionId") == null) {
+			logger.error("Requision id not found. Cannot approve requisition.");
+			return Boolean.FALSE;
 		}
+
+		Optional<Requisition> req = requisitionRepository.findById(obj.get("requisitionId").asLong());
+		if (!req.isPresent()) {
+			logger.error("Requision not found. Cannot approve requisition.");
+			return Boolean.FALSE;
+		}
+
+		Requisition requisition = req.get();
+		requisition.setStatus(Constants.PROGRESS_STAGE_APPROVED);
+		requisition = requisitionRepository.save(requisition);
+		saveRequisitionActivity(requisition);
+		logger.info("Requisition approved successfully");
+		return Boolean.TRUE;
 
 	}
  
