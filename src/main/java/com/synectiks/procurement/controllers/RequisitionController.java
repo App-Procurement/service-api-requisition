@@ -49,9 +49,10 @@ public class RequisitionController {
 	public ResponseEntity<Requisition> addRequisition   (
 			@RequestParam(name = "requisitionFile", required = false) MultipartFile[] requisitionFile,
 			@RequestParam(name = "requisitionLineItemFile", required = false) MultipartFile[] requisitionLineItemFile,
-			@RequestParam String obj) {
+			@RequestBody ObjectNode objNode) {
 		logger.info("Request to add a requsition");
 		try {
+			String obj = objNode.toPrettyString();
 			Requisition requisition = requisitionService.addRequisition(requisitionFile,requisitionLineItemFile, obj);
 			return ResponseEntity.status(HttpStatus.OK).body(requisition);
 		} catch (JsonMappingException e) {

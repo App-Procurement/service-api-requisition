@@ -230,11 +230,16 @@ public class RequisitionService {
 		requisition = requisitionRepository.save(requisition);
 		logger.info("Requisition added successfully");
 
-		saveFile(extraBudgetoryFile, requisition, now, Constants.IDENTIFIER_REQUISITION_EXTRA_BUDGETORY_FILE);
+		if(extraBudgetoryFile != null) {
+			saveFile(extraBudgetoryFile, requisition, now, Constants.IDENTIFIER_REQUISITION_EXTRA_BUDGETORY_FILE);
+		}
+		
 		saveRequisitionActivity(requisition);
 		saveRequisitionLineItem(requisition, liteItemList);
+		if(requisitionLineItemFile != null) {
+			saveFile(requisitionLineItemFile, requisition, now, Constants.IDENTIFIER_REQUISITION_LINE_ITEM_FILE);
+		}
 		
-		saveFile(requisitionLineItemFile, requisition, now, Constants.IDENTIFIER_REQUISITION_LINE_ITEM_FILE);
 		logger.info("Requisition added successfully");
 		
 		return requisition;
@@ -410,68 +415,73 @@ public class RequisitionService {
 	private List<RequisitionLineItem> getLineItemFromJson(String obj) throws JSONException {
 		List<RequisitionLineItem> liteItemList = new ArrayList<>();
 		JSONObject jsonObj = new JSONObject(obj);
-		JSONArray reqLineItemArray = jsonObj.getJSONArray("requisitionLineItemLists");
-		if (reqLineItemArray != null && reqLineItemArray.length() > 0) {
-			for (int j = 0; j < reqLineItemArray.length(); j++) {
-				JSONObject json = reqLineItemArray.getJSONObject(j);
-				RequisitionLineItem reqLineItem = new RequisitionLineItem();
+		
+		
+		if(jsonObj.has("requisitionLineItemLists")) {
+			JSONArray reqLineItemArray = jsonObj.getJSONArray("requisitionLineItemLists");
+//			if (reqLineItemArray != null && reqLineItemArray.length() > 0) {
+				for (int j = 0; j < reqLineItemArray.length(); j++) {
+					JSONObject json = reqLineItemArray.getJSONObject(j);
+					RequisitionLineItem reqLineItem = new RequisitionLineItem();
 
-				if (!json.isNull("id")) {
-					try {
-						String q = (String) json.get("id");
-						reqLineItem = this.requisitionLineItemService.getRequisitionLineItem(Long.parseLong(q));
-					} catch (Exception e) {
+					if (!json.isNull("id")) {
 						try {
-							Integer q = (Integer) json.get("id");
-							reqLineItem = this.requisitionLineItemService.getRequisitionLineItem(q.longValue());
-						} catch (Exception ee) {
-							logger.error("Cannot read line item id. Exception ", e);
-							throw ee;
+							String q = (String) json.get("id");
+							reqLineItem = this.requisitionLineItemService.getRequisitionLineItem(Long.parseLong(q));
+						} catch (Exception e) {
+							try {
+								Integer q = (Integer) json.get("id");
+								reqLineItem = this.requisitionLineItemService.getRequisitionLineItem(q.longValue());
+							} catch (Exception ee) {
+								logger.error("Cannot read line item id. Exception ", e);
+								throw ee;
+							}
 						}
 					}
-				}
 
-				if (!json.isNull("orderQuantity")) {
-					try {
-						String q = (String) json.get("orderQuantity");
-						reqLineItem.setOrderQuantity(Integer.parseInt(q));
-					} catch (Exception e) {
+					if (!json.isNull("orderQuantity")) {
 						try {
-							Integer q = (Integer) json.get("orderQuantity");
-							reqLineItem.setOrderQuantity(q);
-						} catch (Exception ee) {
-							logger.error("Cannot read quantity. Exception ", e);
-							throw ee;
+							String q = (String) json.get("orderQuantity");
+							reqLineItem.setOrderQuantity(Integer.parseInt(q));
+						} catch (Exception e) {
+							try {
+								Integer q = (Integer) json.get("orderQuantity");
+								reqLineItem.setOrderQuantity(q);
+							} catch (Exception ee) {
+								logger.error("Cannot read quantity. Exception ", e);
+								throw ee;
+							}
 						}
 					}
-				}
 
-				if (!json.isNull("itemDescription")) {
-					reqLineItem.setItemDescription((String) json.get("itemDescription"));
-				}
-				if (!json.isNull("ratePerItem")) {
-					try {
-						String q = (String) json.get("ratePerItem");
-						reqLineItem.setRatePerItem(Integer.parseInt(q));
-					} catch (Exception e) {
+					if (!json.isNull("itemDescription")) {
+						reqLineItem.setItemDescription((String) json.get("itemDescription"));
+					}
+					if (!json.isNull("ratePerItem")) {
 						try {
-							Integer q = (Integer) json.get("ratePerItem");
-							reqLineItem.setRatePerItem(q);
-						} catch (Exception ee) {
-							logger.error("Cannot read per item rate. Exception ", e);
-							throw ee;
+							String q = (String) json.get("ratePerItem");
+							reqLineItem.setRatePerItem(Integer.parseInt(q));
+						} catch (Exception e) {
+							try {
+								Integer q = (Integer) json.get("ratePerItem");
+								reqLineItem.setRatePerItem(q);
+							} catch (Exception ee) {
+								logger.error("Cannot read per item rate. Exception ", e);
+								throw ee;
+							}
 						}
 					}
-				}
 
-				if (reqLineItem.getOrderQuantity() != null && reqLineItem.getRatePerItem() != null) {
-					int amt = reqLineItem.getOrderQuantity() * reqLineItem.getRatePerItem();
-					reqLineItem.setPrice(amt);
-				}
+					if (reqLineItem.getOrderQuantity() != null && reqLineItem.getRatePerItem() != null) {
+						int amt = reqLineItem.getOrderQuantity() * reqLineItem.getRatePerItem();
+						reqLineItem.setPrice(amt);
+					}
 
-				liteItemList.add(reqLineItem);
-			}
+					liteItemList.add(reqLineItem);
+				}
+//			}
 		}
+		
 		return liteItemList;
 	}
 
