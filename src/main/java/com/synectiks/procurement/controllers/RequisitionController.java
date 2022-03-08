@@ -73,9 +73,10 @@ public class RequisitionController {
 	public ResponseEntity<Requisition> updateRequisition(
 			@RequestParam(name = "requisitionFile", required = false) MultipartFile[] requisitionFile,
 			@RequestParam(name = "requisitionLineItemFile", required = false) MultipartFile[] requisitionLineItemFile,
-			@RequestParam("obj") String obj) {
+			@RequestBody ObjectNode objNode) {
 		logger.info("Request to update a requsition");
 		try {
+			String obj = objNode.toPrettyString();
 			Requisition requisition = requisitionService.updateRequisition(requisitionFile,requisitionLineItemFile, obj);
 			return ResponseEntity.status(HttpStatus.OK).body(requisition);
 		} catch (JsonMappingException e) {

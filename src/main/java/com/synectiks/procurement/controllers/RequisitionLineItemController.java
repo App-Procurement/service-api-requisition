@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.business.service.RequisitionLineItemService;
 import com.synectiks.procurement.domain.RequisitionLineItem;
 
@@ -37,10 +39,11 @@ public class RequisitionLineItemController {
 	@PostMapping("/requisitionLineItem")
 	public ResponseEntity<RequisitionLineItem> addRequisitionLineItem(
 			@RequestParam(name = "requisitionLineItemFile", required = false) MultipartFile[] requisitionLineItemFile,
-			@RequestParam("obj") String obj) throws IOException {
+			@RequestBody ObjectNode objNode) throws IOException {
 		logger.info("Request to add a requisition line item");
 		RequisitionLineItem requisitionLineItem;
 		try {
+			String obj = objNode.toPrettyString();
 			requisitionLineItem = requisitionLineItemService.addRequisitionLineItem(obj, requisitionLineItemFile);
 			return ResponseEntity.status(HttpStatus.OK).body(requisitionLineItem);
 		} catch (IOException e) {
@@ -52,9 +55,10 @@ public class RequisitionLineItemController {
 	@PutMapping("/requisitionLineItem")
 	public ResponseEntity<RequisitionLineItem> updateRequisitionLineItem(
 			@RequestParam(name = "requisitionLineItemFile", required = false) MultipartFile[] requisitionLineItemFile,
-			@RequestParam("obj") String obj) throws IOException {
+			@RequestBody ObjectNode objNode) throws IOException {
 		logger.info("Request to update a requsition");
 		try {
+			String obj = objNode.toPrettyString();
 			RequisitionLineItem requisitionLineItem = requisitionLineItemService.updateRequisitionLineItem(obj,
 					requisitionLineItemFile);
 			return ResponseEntity.status(HttpStatus.OK).body(requisitionLineItem);
