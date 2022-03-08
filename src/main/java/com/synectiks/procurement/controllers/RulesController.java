@@ -86,7 +86,7 @@ public class RulesController {
 		return ResponseEntity.status(HttpStatus.OK).body(rules);
 	}
 
-	@GetMapping("/rules/{name}")
+	@GetMapping("/rules/name/{name}")
 	public ResponseEntity<Rules> getRulesByName(@PathVariable String name) {
 		logger.info("Getting rule by name: " + name);
 		Rules rules = rulesService.getRulesByName(name);
