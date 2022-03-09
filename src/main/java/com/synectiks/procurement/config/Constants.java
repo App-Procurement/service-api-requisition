@@ -65,6 +65,10 @@ public final class Constants {
     public static String LOCAL_FILE_PATH = null;
     public static String IS_AWS_FIEL_STORE = null;
     
+    public static final String NEGATIVE_ID_ERROR_MESSAGE = "Negative id not allowed";
+    public static final String ID_NOT_FOUND_ERROR_MESSAGE = "Id not found";
+    public static final String DATA_NOT_FOUND_ERROR_MESSAGE = "Data not found";
+    
     private Constants() {
     }
 }

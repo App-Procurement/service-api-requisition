@@ -64,6 +64,9 @@ import com.synectiks.procurement.repository.RequisitionLineItemRepository;
 import com.synectiks.procurement.repository.RequisitionRepository;
 import com.synectiks.procurement.repository.VendorRequisitionBucketRepository;
 import com.synectiks.procurement.util.DateFormatUtil;
+import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
+import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
+import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
 @Service
 public class RequisitionService {
@@ -272,16 +275,26 @@ public class RequisitionService {
 
 	@Transactional
 	public Requisition updateRequisition(MultipartFile[] extraBudgetoryFile, MultipartFile[] requisitionLineItemFile,
-			String obj) throws JsonMappingException, JsonProcessingException, JSONException, IOException {
+			String obj) throws JsonMappingException, JsonProcessingException, JSONException, IOException, NegativeIdException, IdNotFoundException, DataNotFoundException {
 		logger.info("Update requisition");
-
+		
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode json = (ObjectNode) mapper.readTree(obj);
+		
+		if(org.apache.commons.lang3.StringUtils.isBlank(json.get("id").asText())) {
+			logger.error("Requisition could not be updated. Requisition id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
 
+		Long reqId = Long.parseLong(json.get("id").asText());
+		if(reqId < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+		
 		Optional<Requisition> orq = requisitionRepository.findById(Long.parseLong(json.get("id").asText()));
 		if (!orq.isPresent()) {
 			logger.error("Requisition could not be updated. Requisition not found");
-			return null;
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
 		}
 
 		Requisition requisition = orq.get();
@@ -626,10 +639,15 @@ public class RequisitionService {
 		return requisitionActivity;
 	}
 
-	public List<Requisition> searchRequisition(Map<String, String> requestObj) throws ParseException {
+	public List<Requisition> searchRequisition(Map<String, String> requestObj) throws ParseException, NegativeIdException {
 		logger.info("Request to search requisition on given filter criteria");
 		Requisition requisition = new Requisition();
 
+		Long reqId =Long.parseLong(requestObj.get("id"));
+		if(reqId < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+		
 		boolean isFilter = false;
 		if (!org.apache.commons.lang3.StringUtils.isBlank(requestObj.get("id"))) {
 			requisition.setId(Long.parseLong(requestObj.get("id")));
@@ -800,7 +818,7 @@ public class RequisitionService {
 //		logger.info("Requisition deleted successfully");
 //	}
 
-	public List<Requisition> getAllRequisitions() throws ParseException {
+	public List<Requisition> getAllRequisitions() throws ParseException, NegativeIdException {
 		Map<String, String> requestObj = new HashMap<>();
 		List<Requisition> list = searchRequisition(requestObj);
 //		List<Requisition> list = requisitionRepository.findAll(Sort.by(Direction.ASC, "id"));
@@ -967,14 +985,19 @@ public class RequisitionService {
 //
 //	}
 
-	public Boolean approveRequisition(ObjectNode obj){
+	public Boolean approveRequisition(ObjectNode obj) throws IdNotFoundException, NegativeIdException{
 		logger.info("Getting requisition by id: " + obj);
 
 		if (obj.get("requisitionId") == null) {
-			logger.error("Requision id not found. Cannot approve requisition.");
-			return Boolean.FALSE;
+			logger.error("Requisition could not be updated. Requisition id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
 		}
-
+		
+		Long reqId = obj.get("requisitionId").asLong();
+		if(reqId < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+		
 		Optional<Requisition> req = requisitionRepository.findById(obj.get("requisitionId").asLong());
 		if (!req.isPresent()) {
 			logger.error("Requision not found. Cannot approve requisition.");
