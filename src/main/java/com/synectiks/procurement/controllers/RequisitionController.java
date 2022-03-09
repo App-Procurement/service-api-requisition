@@ -37,6 +37,10 @@ import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
 import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
 import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+@Api(tags = "Requisition APIs")
 @RestController
 @RequestMapping("/api")
 public class RequisitionController {
@@ -45,6 +49,7 @@ public class RequisitionController {
 	@Autowired
 	private RequisitionService requisitionService;
 
+	@ApiOperation(value = "Create a new requisition")
 	@RequestMapping(value = "/requisitions", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Requisition> addRequisition   (
 			@RequestParam(name = "requisitionFile", required = false) MultipartFile[] requisitionFile,
@@ -57,18 +62,27 @@ public class RequisitionController {
 			return ResponseEntity.status(HttpStatus.OK).body(requisition);
 		} catch (JsonMappingException e) {
 			logger.error("Add requisition failed. JsonMappingException: ", e);
+			return ResponseEntity.status(BusinessValidationCodes.JSON_MAPPING_EXCEPTION.value()).body(null);
 		} catch (JsonProcessingException e) {
 			logger.error("Add requisition failed. JsonProcessingException: ", e);
+			return ResponseEntity.status(BusinessValidationCodes.JSON_PROCESSING_EXCEPTION.value()).body(null);
 		} catch (JSONException e) {
 			logger.error("Add requisition failed. JSONException: ", e);
+			return ResponseEntity.status(BusinessValidationCodes.JSON_EXCEPTION.value()).body(null);
 		} catch (IOException e) {
 			logger.error("Add requisition failed. IOException: ", e);
+			return ResponseEntity.status(BusinessValidationCodes.IO_EXCEPTION.value()).body(null);
 		} catch (ParseException e) {
 			logger.error("Add requisition failed. ParseException: ", e);
+			return ResponseEntity.status(BusinessValidationCodes.PARSE_EXCEPTION.value()).body(null);
+		}catch (Exception e) {
+			logger.error("Add requisition failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
-		return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+		
 	}
 
+	@ApiOperation(value = "Update an existing requisition")
 	@RequestMapping(value = "/requisitions", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Requisition> updateRequisition(
 			@RequestParam(name = "requisitionFile", required = false) MultipartFile[] requisitionFile,
@@ -81,25 +95,32 @@ public class RequisitionController {
 			return ResponseEntity.status(HttpStatus.OK).body(requisition);
 		} catch (JsonMappingException e) {
 			logger.error("Update requisition failed. JsonMappingException: ", e);
+			return ResponseEntity.status(BusinessValidationCodes.JSON_MAPPING_EXCEPTION.value()).body(null);
 		} catch (JsonProcessingException e) {
 			logger.error("Update requisition failed. JsonProcessingException: ", e);
+			return ResponseEntity.status(BusinessValidationCodes.JSON_PROCESSING_EXCEPTION.value()).body(null);
 		} catch (JSONException e) {
 			logger.error("Update requisition failed. JSONException: ", e);
+			return ResponseEntity.status(BusinessValidationCodes.JSON_EXCEPTION.value()).body(null);
 		} catch (IOException e) {
 			logger.error("Update requisition failed. IOException: ", e);
+			return ResponseEntity.status(BusinessValidationCodes.IO_EXCEPTION.value()).body(null);
 		} catch (NegativeIdException e) {
 			logger.error("Update requisition failed. NegativeIdException: ", e.getMessage());
-			return ResponseEntity.status(BusinessValidationCodes.NEGETIVE_ID_NOT_ALLOWED.value()).body(null);
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
 		} catch (IdNotFoundException e) {
 			logger.error("Update requisition failed. IdNotFoundException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
 		} catch (DataNotFoundException e) {
 			logger.error("Update requisition failed. DataNotFoundException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
+		}catch (Exception e) {
+			logger.error("Update requisition failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
-		return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 	}
 
+	@ApiOperation(value = "Search requisitions")
 	@GetMapping("/requisitions")
 	public ResponseEntity<List<Requisition>> searchRequisition(@RequestParam Map<String, String> requestObj) throws ParseException {
 		logger.info("Request to search requsitions");
@@ -108,14 +129,18 @@ public class RequisitionController {
 			return ResponseEntity.status(HttpStatus.OK).body(list);
 		} catch (ParseException e) {
 			logger.error("Search requisition failed. ParseException: ", e);
-			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+			return ResponseEntity.status(BusinessValidationCodes.PARSE_EXCEPTION.value()).body(null);
 		} catch (NegativeIdException e) {
 			logger.error("Search requisition failed. NegativeIdException: ", e.getMessage());
-			return ResponseEntity.status(BusinessValidationCodes.NEGETIVE_ID_NOT_ALLOWED.value()).body(null);
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+		} catch (Exception e) {
+			logger.error("Search requisition failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
 
 	}
 
+	@ApiOperation(value = "Delete a requisition")
 	@DeleteMapping("/requisitions/{id}")
 	public ResponseEntity<Boolean> deleteRequisition(@PathVariable Long id){
 		ObjectMapper mapper = new ObjectMapper();
@@ -132,27 +157,32 @@ public class RequisitionController {
 			}
 		} catch (JsonMappingException e) {
 			logger.error("Delete requisition failed. JsonMappingException: ", e);
+			return ResponseEntity.status(BusinessValidationCodes.JSON_MAPPING_EXCEPTION.value()).body(null);
 		} catch (JsonProcessingException e) {
 			logger.error("Delete requisition failed. JsonProcessingException: ", e);
+			return ResponseEntity.status(BusinessValidationCodes.JSON_PROCESSING_EXCEPTION.value()).body(null);
 		} catch (JSONException e) {
 			logger.error("Delete requisition failed. JSONException: ", e);
+			return ResponseEntity.status(BusinessValidationCodes.JSON_EXCEPTION.value()).body(null);
 		} catch (IOException e) {
 			logger.error("Delete requisition failed. IOException: ", e);
+			return ResponseEntity.status(BusinessValidationCodes.IO_EXCEPTION.value()).body(null);
 		} catch (NegativeIdException e) {
 			logger.error("Delete requisition failed. NegativeIdException: ", e.getMessage());
-			return ResponseEntity.status(BusinessValidationCodes.NEGETIVE_ID_NOT_ALLOWED.value()).body(null);
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
 		} catch (IdNotFoundException e) {
 			logger.error("Delete requisition failed. IdNotFoundException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
 		}catch (DataNotFoundException e) {
 			logger.error("Delete requisition failed. DataNotFoundException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
+		}catch (Exception e) {
+			logger.error("Delete requisition failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
-		return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 	}
 
-
-
+	@ApiOperation(value = "Search a requisition by id")
 	@GetMapping("/requisitions/{id}")
 	public ResponseEntity<Requisition> getRequisitionById(@PathVariable Long id){
 		logger.info("Getting requisition by id: " + id);
@@ -167,13 +197,17 @@ public class RequisitionController {
 			return ResponseEntity.status(HttpStatus.OK).body(requisition);
 		}catch (ParseException e) {
 			logger.error("Getting requisition by id failed. ParseException: ", e);
-			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+			return ResponseEntity.status(BusinessValidationCodes.PARSE_EXCEPTION.value()).body(null);
 		} catch (NegativeIdException e) {
 			logger.error("Getting requisition by id failed. NegativeIdException: ", e.getMessage());
-			return ResponseEntity.status(BusinessValidationCodes.NEGETIVE_ID_NOT_ALLOWED.value()).body(null);
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+		}catch (Exception e) {
+			logger.error("Getting requisition by id failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
 	}
 
+	@ApiOperation(value = "Assign selected requisitions to selected vendors")
 	@PostMapping("/requisitions/sendToVendor")
 	public ResponseEntity<List<VendorRequisitionBucket>> sendRequisitionToVendor(@RequestBody List<ObjectNode> list) {
 		logger.info("Assigning requisitions to vendors ");
@@ -185,6 +219,7 @@ public class RequisitionController {
 		}
 	}
 
+	@ApiOperation(value = "Approve a requisition")
 	@PostMapping("/requisitions/approve")
 	public ResponseEntity<Boolean> approveRequisition(@RequestBody ObjectNode obj) {
 		logger.info("Request to approve a requsition");
@@ -196,7 +231,10 @@ public class RequisitionController {
 			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
 		} catch (NegativeIdException e) {
 			logger.error("Approve requisition failed. NegativeIdException: ", e.getMessage());
-			return ResponseEntity.status(BusinessValidationCodes.NEGETIVE_ID_NOT_ALLOWED.value()).body(null);
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+		} catch (Exception e) {
+			logger.error("Approve requisition failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
 		
 	} 

@@ -3,10 +3,16 @@ package com.synectiks.procurement.config;
 import org.springframework.lang.Nullable;
 public enum BusinessValidationCodes {
 
-	NEGETIVE_ID_NOT_ALLOWED(800, "Negative id not allowed"),
+	NEGATIVE_ID_NOT_ALLOWED(800, "Negative id not allowed"),
 	ID_NOT_FOUND(801, "Id not found"),
 	DELETION_FAILED(802, "Deletion failed"),
 	DATA_NOT_FOUND(803, "Data not found"),
+	JSON_MAPPING_EXCEPTION(804, "JSON mapping exception"),
+	JSON_PROCESSING_EXCEPTION(805, "JSON processing exception"),
+	JSON_EXCEPTION(806, "JSON exception"),
+	IO_EXCEPTION(807, "IO exception"),
+	PARSE_EXCEPTION(808, "Parse exception"),
+	
 	NO_APPROVAL_RIGHTS(820, "Current role cannot approve");
 
 	private final int value;
