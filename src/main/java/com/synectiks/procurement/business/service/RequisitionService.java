@@ -134,7 +134,7 @@ public class RequisitionService {
 
 	@Transactional
 	public Requisition addRequisition(MultipartFile[] extraBudgetoryFile, MultipartFile[] requisitionLineItemFile,
-			String obj) throws JsonMappingException, JsonProcessingException, JSONException, IOException, ParseException {
+			String obj) throws IOException, JSONException, NegativeIdException {
 		logger.info("Adding requistion");
 		Requisition requisition = new Requisition();
 
@@ -275,7 +275,7 @@ public class RequisitionService {
 
 	@Transactional
 	public Requisition updateRequisition(MultipartFile[] extraBudgetoryFile, MultipartFile[] requisitionLineItemFile,
-			String obj) throws JsonMappingException, JsonProcessingException, JSONException, IOException, NegativeIdException, IdNotFoundException, DataNotFoundException {
+			String obj) throws IdNotFoundException, NegativeIdException, DataNotFoundException, IOException, JSONException {
 		logger.info("Update requisition");
 		
 		ObjectMapper mapper = new ObjectMapper();
@@ -639,17 +639,22 @@ public class RequisitionService {
 		return requisitionActivity;
 	}
 
-	public List<Requisition> searchRequisition(Map<String, String> requestObj) throws ParseException, NegativeIdException {
+	public List<Requisition> searchRequisition(Map<String, String> requestObj) throws NegativeIdException, ParseException {
 		logger.info("Request to search requisition on given filter criteria");
 		Requisition requisition = new Requisition();
 
-		Long reqId =Long.parseLong(requestObj.get("id"));
-		if(reqId < 0) {
-			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
-		}
+	
 		
 		boolean isFilter = false;
 		if (!org.apache.commons.lang3.StringUtils.isBlank(requestObj.get("id"))) {
+			
+			
+			Long reqId =Long.parseLong(requestObj.get("id"));
+			if(reqId < 0) {
+				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+			}
+			
+			
 			requisition.setId(Long.parseLong(requestObj.get("id")));
 			isFilter = true;
 		}
@@ -827,7 +832,7 @@ public class RequisitionService {
 	}
 
 	@Transactional
-	public List<VendorRequisitionBucket> sendRequisitionToVendor(List<ObjectNode> list) {
+	public List<VendorRequisitionBucket> sendRequisitionToVendor(List<ObjectNode> list) throws IdNotFoundException, NegativeIdException, DataNotFoundException  {
 		List<VendorRequisitionBucket> vReqList = new ArrayList<>();
 		for (ObjectNode obj : list) {
 			VendorRequisitionBucket bucket = new VendorRequisitionBucket();
@@ -989,7 +994,7 @@ public class RequisitionService {
 		logger.info("Getting requisition by id: " + obj);
 
 		if (obj.get("requisitionId") == null) {
-			logger.error("Requisition could not be updated. Requisition id not found");
+			logger.error("Requisition could not be approved. Requisition id not found");
 			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
 		}
 		
@@ -1083,7 +1088,7 @@ public class RequisitionService {
 	}
 
 	@Transactional
-	public void deleteRequisition(Long requisitionId) {
+	public void deleteRequisition(Long requisitionId) throws NegativeIdException, IdNotFoundException, DataNotFoundException {
 		logger.info("Deleting requisition");
 		Requisition req = getRequisition(requisitionId);
 		Instant now = Instant.now();

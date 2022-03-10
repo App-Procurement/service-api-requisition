@@ -24,8 +24,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.business.service.RequisitionService;
@@ -51,35 +49,29 @@ public class RequisitionController {
 
 	@ApiOperation(value = "Create a new requisition")
 	@RequestMapping(value = "/requisitions", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Requisition> addRequisition   (
+	public ResponseEntity<Requisition> addRequisition(
 			@RequestParam(name = "requisitionFile", required = false) MultipartFile[] requisitionFile,
 			@RequestParam(name = "requisitionLineItemFile", required = false) MultipartFile[] requisitionLineItemFile,
 			@RequestBody ObjectNode objNode) {
 		logger.info("Request to add a requsition");
 		try {
 			String obj = objNode.toPrettyString();
-			Requisition requisition = requisitionService.addRequisition(requisitionFile,requisitionLineItemFile, obj);
+			Requisition requisition = requisitionService.addRequisition(requisitionFile, requisitionLineItemFile, obj);
 			return ResponseEntity.status(HttpStatus.OK).body(requisition);
-		} catch (JsonMappingException e) {
-			logger.error("Add requisition failed. JsonMappingException: ", e);
-			return ResponseEntity.status(BusinessValidationCodes.JSON_MAPPING_EXCEPTION.value()).body(null);
-		} catch (JsonProcessingException e) {
-			logger.error("Add requisition failed. JsonProcessingException: ", e);
-			return ResponseEntity.status(BusinessValidationCodes.JSON_PROCESSING_EXCEPTION.value()).body(null);
 		} catch (JSONException e) {
 			logger.error("Add requisition failed. JSONException: ", e);
 			return ResponseEntity.status(BusinessValidationCodes.JSON_EXCEPTION.value()).body(null);
 		} catch (IOException e) {
 			logger.error("Add requisition failed. IOException: ", e);
 			return ResponseEntity.status(BusinessValidationCodes.IO_EXCEPTION.value()).body(null);
-		} catch (ParseException e) {
-			logger.error("Add requisition failed. ParseException: ", e);
-			return ResponseEntity.status(BusinessValidationCodes.PARSE_EXCEPTION.value()).body(null);
-		}catch (Exception e) {
-			logger.error("Add requisition failed. Exception: ", e);
+		} catch (NegativeIdException e) {
+			logger.error("Add requisition failed. NegativeIdException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+		} catch (Exception e) {
+			logger.error("Update requisition failed. Exception: ", e);
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
-		
+
 	}
 
 	@ApiOperation(value = "Update an existing requisition")
@@ -91,14 +83,9 @@ public class RequisitionController {
 		logger.info("Request to update a requsition");
 		try {
 			String obj = objNode.toPrettyString();
-			Requisition requisition = requisitionService.updateRequisition(requisitionFile,requisitionLineItemFile, obj);
+			Requisition requisition = requisitionService.updateRequisition(requisitionFile, requisitionLineItemFile,
+					obj);
 			return ResponseEntity.status(HttpStatus.OK).body(requisition);
-		} catch (JsonMappingException e) {
-			logger.error("Update requisition failed. JsonMappingException: ", e);
-			return ResponseEntity.status(BusinessValidationCodes.JSON_MAPPING_EXCEPTION.value()).body(null);
-		} catch (JsonProcessingException e) {
-			logger.error("Update requisition failed. JsonProcessingException: ", e);
-			return ResponseEntity.status(BusinessValidationCodes.JSON_PROCESSING_EXCEPTION.value()).body(null);
 		} catch (JSONException e) {
 			logger.error("Update requisition failed. JSONException: ", e);
 			return ResponseEntity.status(BusinessValidationCodes.JSON_EXCEPTION.value()).body(null);
@@ -114,7 +101,7 @@ public class RequisitionController {
 		} catch (DataNotFoundException e) {
 			logger.error("Update requisition failed. DataNotFoundException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
-		}catch (Exception e) {
+		} catch (Exception e) {
 			logger.error("Update requisition failed. Exception: ", e);
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
@@ -122,7 +109,8 @@ public class RequisitionController {
 
 	@ApiOperation(value = "Search requisitions")
 	@GetMapping("/requisitions")
-	public ResponseEntity<List<Requisition>> searchRequisition(@RequestParam Map<String, String> requestObj) throws ParseException {
+	public ResponseEntity<List<Requisition>> searchRequisition(@RequestParam Map<String, String> requestObj)
+			throws ParseException {
 		logger.info("Request to search requsitions");
 		try {
 			List<Requisition> list = requisitionService.searchRequisition(requestObj);
@@ -142,25 +130,19 @@ public class RequisitionController {
 
 	@ApiOperation(value = "Delete a requisition")
 	@DeleteMapping("/requisitions/{id}")
-	public ResponseEntity<Boolean> deleteRequisition(@PathVariable Long id){
+	public ResponseEntity<Boolean> deleteRequisition(@PathVariable Long id) {
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode obj = mapper.createObjectNode();
 		obj.put("id", id);
 		obj.put("status", Constants.STATUS_DEACTIVE);
-			
+
 		try {
-			Requisition req = requisitionService.updateRequisition(null,null, obj.toString());
-			if(Constants.STATUS_DEACTIVE.equalsIgnoreCase(req.getStatus())){
+			Requisition req = requisitionService.updateRequisition(null, null, obj.toString());
+			if (Constants.STATUS_DEACTIVE.equalsIgnoreCase(req.getStatus())) {
 				return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
-			}else {
+			} else {
 				return ResponseEntity.status(BusinessValidationCodes.DELETION_FAILED.value()).body(Boolean.FALSE);
 			}
-		} catch (JsonMappingException e) {
-			logger.error("Delete requisition failed. JsonMappingException: ", e);
-			return ResponseEntity.status(BusinessValidationCodes.JSON_MAPPING_EXCEPTION.value()).body(null);
-		} catch (JsonProcessingException e) {
-			logger.error("Delete requisition failed. JsonProcessingException: ", e);
-			return ResponseEntity.status(BusinessValidationCodes.JSON_PROCESSING_EXCEPTION.value()).body(null);
 		} catch (JSONException e) {
 			logger.error("Delete requisition failed. JSONException: ", e);
 			return ResponseEntity.status(BusinessValidationCodes.JSON_EXCEPTION.value()).body(null);
@@ -173,10 +155,10 @@ public class RequisitionController {
 		} catch (IdNotFoundException e) {
 			logger.error("Delete requisition failed. IdNotFoundException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
-		}catch (DataNotFoundException e) {
+		} catch (DataNotFoundException e) {
 			logger.error("Delete requisition failed. DataNotFoundException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
-		}catch (Exception e) {
+		} catch (Exception e) {
 			logger.error("Delete requisition failed. Exception: ", e);
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
@@ -184,24 +166,24 @@ public class RequisitionController {
 
 	@ApiOperation(value = "Search a requisition by id")
 	@GetMapping("/requisitions/{id}")
-	public ResponseEntity<Requisition> getRequisitionById(@PathVariable Long id){
+	public ResponseEntity<Requisition> getRequisitionById(@PathVariable Long id) {
 		logger.info("Getting requisition by id: " + id);
 		Map<String, String> reqObj = new HashMap<>();
 		try {
 			Requisition requisition = null;
 			reqObj.put("id", String.valueOf(id));
 			List<Requisition> reqList = requisitionService.searchRequisition(reqObj);
-			if(reqList.size() > 0) {
+			if (reqList.size() > 0) {
 				requisition = reqList.get(0);
 			}
 			return ResponseEntity.status(HttpStatus.OK).body(requisition);
-		}catch (ParseException e) {
+		} catch (ParseException e) {
 			logger.error("Getting requisition by id failed. ParseException: ", e);
 			return ResponseEntity.status(BusinessValidationCodes.PARSE_EXCEPTION.value()).body(null);
 		} catch (NegativeIdException e) {
 			logger.error("Getting requisition by id failed. NegativeIdException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
-		}catch (Exception e) {
+		} catch (Exception e) {
 			logger.error("Getting requisition by id failed. Exception: ", e);
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
@@ -214,7 +196,17 @@ public class RequisitionController {
 		try {
 			List<VendorRequisitionBucket> vReqList = requisitionService.sendRequisitionToVendor(list);
 			return ResponseEntity.status(HttpStatus.OK).body(vReqList);
-		}catch(Exception e) {
+		} catch (NegativeIdException e) {
+			logger.error("Send to vendor failed. NegativeIdException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+		} catch (IdNotFoundException e) {
+			logger.error("Send to vendor failed. IdNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
+		} catch (DataNotFoundException e) {
+			logger.error("Send to vendor failed. DataNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
+		} catch (Exception e) {
+			logger.error("Send to vendor failed. Exception: ", e);
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
 	}
@@ -226,7 +218,7 @@ public class RequisitionController {
 		try {
 			Boolean updateFlag = requisitionService.approveRequisition(obj);
 			return ResponseEntity.status(HttpStatus.OK).body(updateFlag);
-		}catch (IdNotFoundException e) {
+		} catch (IdNotFoundException e) {
 			logger.error("Approve requisition failed. IdNotFoundException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
 		} catch (NegativeIdException e) {
@@ -236,7 +228,7 @@ public class RequisitionController {
 			logger.error("Approve requisition failed. Exception: ", e);
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
-		
-	} 
+
+	}
 
 }

@@ -28,6 +28,9 @@ import com.synectiks.procurement.domain.QuotationActivity;
 import com.synectiks.procurement.domain.Vendor;
 import com.synectiks.procurement.repository.QuotationActivityRepository;
 import com.synectiks.procurement.repository.QuotationRepository;
+import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
+import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
+import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
 @Service
 public class QuotationService {
@@ -61,7 +64,8 @@ public class QuotationService {
 	}
 
 	@Transactional
-	public Quotation addQuotation(ObjectNode obj) {
+	public Quotation addQuotation(ObjectNode obj)
+			throws NumberFormatException, IdNotFoundException, NegativeIdException, DataNotFoundException {
 		Quotation quotation = new Quotation();
 		if (obj.get("documentId") != null) {
 			Document doc = documentService.getDocument(Long.parseLong(obj.get("documentId").asText()));
@@ -146,9 +150,27 @@ public class QuotationService {
 	}
 
 	@Transactional
-	public Quotation updateQuotation(ObjectNode obj) {
+	public Quotation updateQuotation(ObjectNode obj)
+			throws IdNotFoundException, NegativeIdException, DataNotFoundException {
 		logger.info("Updating quotation");
+
+		if (org.apache.commons.lang3.StringUtils.isBlank(obj.get("id").asText())) {
+			logger.error("Quotation could not be updated. Quotation id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+
+		Long reqId = Long.parseLong(obj.get("id").asText());
+		if (reqId < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+
 		Optional<Quotation> ur = quotationRepository.findById(Long.parseLong(obj.get("id").asText()));
+
+		if (!ur.isPresent()) {
+			logger.error("Quotation could not be updated. Quotation not found");
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
+		}
+
 		if (!ur.isPresent()) {
 			logger.error("Quotation not found. Cannot update quotation");
 			return null;
@@ -199,9 +221,15 @@ public class QuotationService {
 		return quotation;
 	}
 
-	public List<Quotation> searchQuotation(Map<String, String> requestObj) {
+	public List<Quotation> searchQuotation(Map<String, String> requestObj)
+			throws NumberFormatException, IdNotFoundException, NegativeIdException, DataNotFoundException {
 		logger.info("Searching quotations");
 		Quotation quotation = new Quotation();
+
+		Long reqId = Long.parseLong(requestObj.get("id"));
+		if (reqId < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
 
 		boolean isFilter = false;
 		if (requestObj.get("id") != null) {
@@ -285,8 +313,25 @@ public class QuotationService {
 
 	}
 
-	public void deleteQuotation(Long id) {
+	public boolean deleteQuotation(Long id) throws IdNotFoundException, NegativeIdException, DataNotFoundException {
+
+		if (id == null) {
+			logger.error("Quotation could not be deleted. quotation id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+		if (id < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+
+		Optional<Quotation> quotation = quotationRepository.findById(id);
+
+		if (!quotation.isPresent()) {
+			logger.error("Quotation could not be deleted. Quotation  not found");
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
+		}
+
 		quotationRepository.deleteById(id);
 		logger.info("Quotation deleted successfully");
+		return true;
 	}
 }

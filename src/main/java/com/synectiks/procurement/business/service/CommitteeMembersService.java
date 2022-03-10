@@ -35,7 +35,9 @@ import com.synectiks.procurement.domain.CommitteeMember;
 import com.synectiks.procurement.domain.Document;
 import com.synectiks.procurement.repository.CommitteeAndMemberLinkRepository;
 import com.synectiks.procurement.repository.CommitteeMemberRepository;
-import com.synectiks.procurement.repository.CommitteeRepository;
+import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
+import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
+import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
 @Service
 public class CommitteeMembersService {
@@ -46,9 +48,6 @@ public class CommitteeMembersService {
 
 	@Autowired
 	private CommitteeMemberRepository committeeMemberRepository;
-
-	@Autowired
-	private CommitteeRepository committeeRepository;
 
 	@Autowired
 	private CommitteeService committeeService;
@@ -224,15 +223,25 @@ public class CommitteeMembersService {
 	}
 
 	@Transactional
-	public CommitteeMember updateCommitteeMembers(String obj, MultipartFile file) throws IOException, JSONException {
+	public CommitteeMember updateCommitteeMembers(String obj, MultipartFile file) throws IOException, JSONException, IdNotFoundException, NegativeIdException, DataNotFoundException {
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode json = (ObjectNode) mapper.readTree(obj);
 
+		if(org.apache.commons.lang3.StringUtils.isBlank(json.get("id").asText())) {
+			logger.error("Committee member could not be updated. Committee member id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+
+		Long reqId = Long.parseLong(json.get("id").asText());
+		if(reqId < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+
+	
 		Optional<CommitteeMember> ur = committeeMemberRepository.findById(Long.parseLong(json.get("id").asText()));
 		if (!ur.isPresent()) {
-			logger.warn("Committee member not found. Cannot update the committee member. Given committee member id: "
-					+ json.get("id").asText());
-			return null;
+			logger.error("Committee members could not be updated. Committee members not found");
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
 		}
 
 		CommitteeMember committeeMember = ur.get();
@@ -359,12 +368,18 @@ public class CommitteeMembersService {
 		}
 	}
 
-	public List<CommitteeMember> searchCommitteeMembers(Map<String, String> requestObj) throws IOException {
+	public List<CommitteeMember> searchCommitteeMembers(Map<String, String> requestObj) throws IOException, NegativeIdException {
 		logger.info("Request to search committee members on given filter criteria");
 		CommitteeMember committeeMember = new CommitteeMember();
 		boolean isFilter = false;
 
 		if (requestObj.get("id") != null) {
+			
+			Long reqId =Long.parseLong(requestObj.get("id"));
+			if(reqId < 0) {
+				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+			}
+			
 			committeeMember.setId(Long.parseLong(requestObj.get("id")));
 			isFilter = true;
 		}

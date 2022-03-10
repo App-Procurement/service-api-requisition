@@ -22,10 +22,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.business.service.QuotationService;
+import com.synectiks.procurement.config.BusinessValidationCodes;
 import com.synectiks.procurement.domain.Quotation;
+import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
+import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
+import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
-import io.github.jhipster.web.util.HeaderUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
+@Api(tags = "Quotation APIs")
 @RestController
 @RequestMapping("/api")
 public class QuotationController {
@@ -34,38 +40,110 @@ public class QuotationController {
 	@Autowired
 	private QuotationService quotationService;
 
+	
+
+
+	@ApiOperation(value = "Create a new quotation")
+	@PostMapping("/quotation")
+	public ResponseEntity<Quotation> addQuotation(@RequestBody ObjectNode obj) {
+		Quotation quotation;
+		try {
+			quotation = quotationService.addQuotation(obj);
+			return ResponseEntity.status(HttpStatus.OK).body(quotation);
+		} catch (NumberFormatException e) {
+			logger.error("Add quotation failed. NumberFormatException ", e.getMessage());
+			e.printStackTrace();
+			throw e;
+		} catch (NegativeIdException e) {
+			logger.error("Add quotation failed. NegativeIdException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+		} catch (IdNotFoundException e) {
+			logger.error("Add quotation failed. IdNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
+		} catch (DataNotFoundException e) {
+			logger.error("Add quotation failed. DataNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
+		} catch (Exception e) {
+			logger.error("Add quotation failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+		}
+	}
+
+	
+	@ApiOperation(value = "Update an existing quotation")
+	@PutMapping("/quotation")
+	public ResponseEntity<Quotation> updateQuotation(@RequestBody ObjectNode obj)
+			throws JSONException, URISyntaxException {
+		try {
+			Quotation quotation = quotationService.updateQuotation(obj);
+			return ResponseEntity.status(HttpStatus.OK).body(quotation);
+		} catch (NumberFormatException e) {
+			logger.error("Update quotation failed. NumberFormatException ", e.getMessage());
+			e.printStackTrace();
+			throw e;
+		} catch (NegativeIdException e) {
+			logger.error("Update quotation failed. NegativeIdException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+		} catch (IdNotFoundException e) {
+			logger.error("Update quotation failed. IdNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
+		} catch (DataNotFoundException e) {
+			logger.error("Update quotation failed. DataNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
+		} catch (Exception e) {
+			logger.error("Update quotation failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+		}
+	}
+
+	@ApiOperation(value = "Search quotation")
+	@GetMapping("/quotation")
+	public ResponseEntity<List<Quotation>> searchQuotation(@RequestParam Map<String, String> requestObj) {
+		logger.info("Request to search quotation on given filter criteria");
+		try {
+			List<Quotation> list = quotationService.searchQuotation(requestObj);
+			return ResponseEntity.status(HttpStatus.OK).body(list);
+		} catch (NegativeIdException e) {
+			logger.error("Search quotation failed. NegativeIdException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+		} catch (Exception e) {
+			logger.error("Search quotation failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+		}
+	}
+
+	@ApiOperation(value = "Delete a quotation")
+	@DeleteMapping("/quotation/{id}")
+	public ResponseEntity<Boolean> deleteQuotation(@PathVariable Long id) {
+
+		try {
+			boolean delQuotation = quotationService.deleteQuotation(id);
+			if (delQuotation) {
+				return ResponseEntity.status(HttpStatus.OK).body(delQuotation);
+			} else {
+				return ResponseEntity.status(HttpStatus.OK).body(!delQuotation);
+			}
+		} catch (NegativeIdException e) {
+			logger.error("Delete quotation failed. NegativeIdException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+		} catch (IdNotFoundException e) {
+			logger.error("Delete quotation failed. IdNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
+		} catch (DataNotFoundException e) {
+			logger.error("Delete quotation failed. DataNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
+		} catch (Exception e) {
+			logger.error("Delete quotation failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+		}
+
+	}
+	
+	@ApiOperation(value = "Search a quotation by id")
 	@GetMapping("/quotation/{id}")
 	public ResponseEntity<Quotation> getQuotation(@PathVariable Long id) {
 		logger.info("Getting quotation by id: " + id);
 		Quotation quotation = quotationService.getQuotation(id);
 		return ResponseEntity.status(HttpStatus.OK).body(quotation);
-	}
-
-	@PostMapping("/quotation")
-	public ResponseEntity<Quotation> addQuotation(@RequestBody ObjectNode obj) {
-		Quotation quotation = quotationService.addQuotation(obj);
-		return ResponseEntity.status(HttpStatus.OK).body(quotation);
-	}
-
-	@PutMapping("/quotation")
-	public ResponseEntity<Quotation> updateQuotation(@RequestBody ObjectNode obj)
-			throws JSONException, URISyntaxException {
-		Quotation quotation = quotationService.updateQuotation(obj);
-		return ResponseEntity.status(HttpStatus.OK).body(quotation);
-	}
-
-	@GetMapping("/quotation")
-	public ResponseEntity<List<Quotation>> searchQuotation(@RequestParam Map<String, String> requestObj) {
-		logger.info("Request to search quotation on given filter criteria");
-		List<Quotation> list = quotationService.searchQuotation(requestObj);
-		return ResponseEntity.status(HttpStatus.OK).body(list);
-	}
-
-	@DeleteMapping("/quotation/{id}")
-	public ResponseEntity<Void> deleteQuotation(@PathVariable Long id) {
-		quotationService.deleteQuotation(id);
-		return ResponseEntity.noContent()
-				.headers(HeaderUtil.createEntityDeletionAlert("quotation", false, "quotation", id.toString())).build();
-
 	}
 }

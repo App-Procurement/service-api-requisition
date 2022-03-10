@@ -32,7 +32,10 @@ import com.synectiks.procurement.repository.DocumentRepository;
 import com.synectiks.procurement.repository.InvoiceActivityRepository;
 import com.synectiks.procurement.repository.InvoiceRepository;
 import com.synectiks.procurement.repository.QuotationRepository;
+import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
 //import com.synectiks.procurement.repository.RequisitionRepository;
+import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
+import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
 @Service
 public class InvoiceService {
@@ -137,11 +140,24 @@ public class InvoiceService {
 	}
 
 	@Transactional
-	public Invoice updateinvoice(ObjectNode obj){
+	public Invoice updateinvoice(ObjectNode obj) throws IdNotFoundException, NegativeIdException, DataNotFoundException {
+
+		if (org.apache.commons.lang3.StringUtils.isBlank(obj.get("id").asText())) {
+			logger.error("Invoice could not be updated. Invoice id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+
+		Long reqId = Long.parseLong(obj.get("id").asText());
+		if (reqId < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+
 		Optional<Invoice> ur = invoiceRepository.findById(Long.parseLong(obj.get("id").asText()));
+
 		if (!ur.isPresent()) {
-			logger.error("Invoice not found");
-			return null;
+			logger.error("Invoice could not be updated. Invoice not found");
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
+
 		}
 		Invoice invoice = ur.get();
 		if (obj.get("invoiceNo") != null) {
@@ -208,11 +224,17 @@ public class InvoiceService {
 
 	}
 
-	public List<Invoice> searchinvoice(Map<String, String> requestObj) {
+	public List<Invoice> searchinvoice(Map<String, String> requestObj) throws NegativeIdException {
 		logger.info("Request to get invoice on given filter criteria");
 		Invoice invoice = new Invoice();
 		boolean isFilter = false;
 		if (requestObj.get("id") != null) {
+			
+			Long reqId =Long.parseLong(requestObj.get("id"));
+			if(reqId < 0) {
+				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+			}
+			
 			invoice.setId(Long.parseLong(requestObj.get("id")));
 			isFilter = true;
 		}
@@ -259,8 +281,8 @@ public class InvoiceService {
 			invoice.setUpdatedOn(instant);
 			isFilter = true;
 		}
-	    if (requestObj.get("updatedBy") != null) {
-	    	invoice.setUpdatedBy(requestObj.get("updatedBy"));
+		if (requestObj.get("updatedBy") != null) {
+			invoice.setUpdatedBy(requestObj.get("updatedBy"));
 			isFilter = true;
 		}
 		List<Invoice> list = null;

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.config.Constants;
 import com.synectiks.procurement.domain.Vendor;
 import com.synectiks.procurement.repository.VendorRepository;
+import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
+import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
+import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
 @Service
 public class VendorService {
@@ -27,9 +31,23 @@ public class VendorService {
 	@Autowired
 	private VendorRepository vendorRepository;
 
-	public Vendor getVendor(Long id) {
+	public Vendor getVendor(Long id) throws IdNotFoundException, NegativeIdException, DataNotFoundException {
 		logger.info("Getting vendor by id: " + id);
+
+		if (id == null) {
+			logger.error("Vendor could not be found. Vendor id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+		if (id < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+
 		Optional<Vendor> ovn = vendorRepository.findById(id);
+		if (!ovn.isPresent()) {
+			logger.error("Vendor not found");
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
+		}
+
 		if (ovn.isPresent()) {
 			logger.info("Vendor: " + ovn.get().toString());
 			return ovn.get();
@@ -81,12 +99,22 @@ public class VendorService {
 		return vendor;
 	}
 
-	public Vendor updateVendor(ObjectNode obj) {
+	public Vendor updateVendor(ObjectNode obj) throws IdNotFoundException, NegativeIdException, DataNotFoundException {
+
+		if (StringUtils.isBlank((obj.get("id").asText()))) {
+			logger.error("Vendor could not be updated. Vendor id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+
+		if (Long.parseLong(obj.get("id").asText()) < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
 		Optional<Vendor> ur = vendorRepository.findById(Long.parseLong(obj.get("id").asText()));
 		if (!ur.isPresent()) {
-			logger.error("Vendor not found");
-			return null;
+			logger.error("Vendor could not be updated. Vendor not found");
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
 		}
+
 		Vendor vendor = ur.get();
 
 		if (obj.get("firstName") != null) {
@@ -124,10 +152,16 @@ public class VendorService {
 		return vendor;
 	}
 
-	public List<Vendor> searchVendor(@RequestParam Map<String, String> requestObj) {
+	public List<Vendor> searchVendor(@RequestParam Map<String, String> requestObj) throws NegativeIdException {
 		Vendor vendor = new Vendor();
 		boolean isFilter = false;
+
 		if (requestObj.get("id") != null) {
+
+			if (Long.parseLong(requestObj.get("id")) < 0) {
+				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+			}
+
 			vendor.setId(Long.parseLong(requestObj.get("id")));
 			isFilter = true;
 		}
@@ -187,8 +221,25 @@ public class VendorService {
 		return list;
 	}
 
-	public void deleteVender(Long id) {
+	public boolean deleteVender(Long id) throws IdNotFoundException, NegativeIdException, DataNotFoundException {
+
+		if (id == null) {
+			logger.error("Vendor could not be deleted. Vendor id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+		if (id < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+
+		Optional<Vendor> vendor = vendorRepository.findById(id);
+
+		if (!vendor.isPresent()) {
+			logger.error("Vendor could not be deleted. Vendor not found");
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
+		}
+
 		vendorRepository.deleteById(id);
 		logger.info("Vendor deleted successfully");
+		return true;
 	}
 }

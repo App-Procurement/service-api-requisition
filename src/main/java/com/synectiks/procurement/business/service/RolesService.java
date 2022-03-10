@@ -27,6 +27,9 @@ import com.synectiks.procurement.domain.Roles;
 import com.synectiks.procurement.domain.RolesGroup;
 import com.synectiks.procurement.repository.RolesGroupRepository;
 import com.synectiks.procurement.repository.RolesRepository;
+import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
+import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
+import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 import com.synectiks.procurement.web.rest.errors.UniqueConstraintException;
 
 @Service
@@ -48,20 +51,19 @@ public class RolesService {
 		if (obj.get("name") != null) {
 			roles.setName(obj.get("name").asText());
 		}
-		
+
 		try {
 			List<Roles> roleList = rolesRepository.findAll(Example.of(roles));
-	        if(roleList.size() > 0) {
-	        	logger.error("Role already exists. Duplicate role not allowd");
-	        	UniqueConstraintException ex = new UniqueConstraintException("Duplicate role not allowd");
-	        	throw ex;
-	        }
-		}catch(Exception e) {
-			logger.error("Exception in validating duplicate role. Exception: ",e);
-        	throw e;
+			if (roleList.size() > 0) {
+				logger.error("Role already exists. Duplicate role not allowd");
+				UniqueConstraintException ex = new UniqueConstraintException("Duplicate role not allowd");
+				throw ex;
+			}
+		} catch (Exception e) {
+			logger.error("Exception in validating duplicate role. Exception: ", e);
+			throw e;
 		}
-        
-		
+
 		if (obj.get("description") != null) {
 			roles.setDescription(obj.get("description").asText());
 		}
@@ -69,7 +71,7 @@ public class RolesService {
 		if (obj.get("status") != null) {
 			roles.setStatus(obj.get("status").asText());
 		}
-	
+
 		if (obj.get("user") != null) {
 			roles.setCreatedBy(obj.get("user").asText());
 			roles.setUpdatedBy(obj.get("user").asText());
@@ -111,11 +113,22 @@ public class RolesService {
 
 	}
 
-	public Roles updateRoles(ObjectNode obj) throws UniqueConstraintException {
+	public Roles updateRoles(ObjectNode obj) throws UniqueConstraintException, IdNotFoundException, NegativeIdException, DataNotFoundException {
+
+		if (org.apache.commons.lang3.StringUtils.isBlank(obj.get("id").asText())) {
+			logger.error("Role could not be updated. Role id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+
+		Long reqId = Long.parseLong(obj.get("id").asText());
+		if (reqId < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+
 		Optional<Roles> ur = rolesRepository.findById(Long.parseLong(obj.get("id").asText()));
 		if (!ur.isPresent()) {
-			logger.error("Role not found");
-			return null;
+			logger.error("Role could not be updated. Role not found");
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
 		}
 		Roles roles = ur.get();
 
@@ -125,20 +138,20 @@ public class RolesService {
 				rol.setName(obj.get("name").asText());
 			}
 			List<Roles> roleList = rolesRepository.findAll(Example.of(rol));
-	        if(roleList.size() > 0) {
-	        	for(Roles rl: roleList) {
-	    			if(rl.getName().equalsIgnoreCase(obj.get("name").asText())) {
-	    				logger.error("Duplicate role not allowd");
-	    				UniqueConstraintException ex = new UniqueConstraintException("Duplicate role not allowd");
-	    				throw ex;
-	    			}
-	        	}
-	        }
-	    }catch(Exception e) {
-			logger.error("Exception in validating duplicate role. Exception: ",e);
-        	throw e;
-	    }
-		
+			if (roleList.size() > 0) {
+				for (Roles rl : roleList) {
+					if (rl.getName().equalsIgnoreCase(obj.get("name").asText())) {
+						logger.error("Duplicate role not allowd");
+						UniqueConstraintException ex = new UniqueConstraintException("Duplicate role not allowd");
+						throw ex;
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error("Exception in validating duplicate role. Exception: ", e);
+			throw e;
+		}
+
 		if (obj.get("name") != null) {
 			roles.setName(obj.get("name").asText());
 		}
@@ -175,10 +188,17 @@ public class RolesService {
 		return roles;
 	}
 
-	public List<Roles> searchRoles(@RequestParam Map<String, String> requestObj){
+	public List<Roles> searchRoles(@RequestParam Map<String, String> requestObj) throws NegativeIdException {
 		Roles roles = new Roles();
 		boolean isFilter = false;
 		if (requestObj.get("id") != null) {
+			
+			Long reqId =Long.parseLong(requestObj.get("id"));
+			if(reqId < 0) {
+				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+			}
+			
+			
 			roles.setId(Long.parseLong(requestObj.get("id")));
 			isFilter = true;
 		}

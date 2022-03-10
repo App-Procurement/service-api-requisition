@@ -20,8 +20,6 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.config.Constants;
@@ -31,6 +29,9 @@ import com.synectiks.procurement.domain.RequisitionLineItemActivity;
 import com.synectiks.procurement.repository.RequisitionLineItemActivityRepository;
 import com.synectiks.procurement.repository.RequisitionLineItemRepository;
 import com.synectiks.procurement.repository.RequisitionRepository;
+import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
+import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
+import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
 @Service
 public class RequisitionLineItemService {
@@ -175,30 +176,38 @@ public class RequisitionLineItemService {
 
 	@Transactional
 	public RequisitionLineItem updateRequisitionLineItem(String obj1, MultipartFile[] requisitionLineItemFile)
-			throws IOException {
+			throws IOException, IdNotFoundException, NegativeIdException, DataNotFoundException {
 		logger.info("Update Requisition line item");
 
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode obj = (ObjectNode) mapper.readTree(obj1);
-		
-		
+
+		if (org.apache.commons.lang3.StringUtils.isBlank(obj.get("id").asText())) {
+			logger.error("Requisition line item could not be updated. Requisition line item id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+
+		Long reqlId = Long.parseLong(obj.get("id").asText());
+		if (reqlId < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
 
 		Optional<RequisitionLineItem> orqli = requisitionLineItemRepository
 				.findById(Long.parseLong(obj.get("id").asText()));
 		if (!orqli.isPresent()) {
-			logger.error("Requisition line item could not be updated. Requisition not found");
-			return null;
+			logger.error("Requisition line item  could not be updated. Requisition line item  not found");
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
 		}
 
 		RequisitionLineItem requisitionLineItem = orqli.get();
-		
+
 		Requisition requisition = requisitionLineItem.getRequisition();
-		
+
 		if (requisition == null) {
 			logger.error("Requisition line item cannot be updated. Requisition missing");
 			return null;
 		}
-		
+
 		if (obj.get("status") != null) {
 			requisitionLineItem.setStatus(obj.get("status").asText());
 		}
@@ -278,11 +287,17 @@ public class RequisitionLineItemService {
 
 	}
 
-	public List<RequisitionLineItem> searchRequisitionLineItem(Map<String, String> requestObj) {
-		logger.info("Request to get requisitionLineItem on given filter criteria");
+	public List<RequisitionLineItem> searchRequisitionLineItem(Map<String, String> requestObj)
+			throws NegativeIdException {
+		logger.info("Request to get requisition line item on given filter criteria");
 		RequisitionLineItem requisitionLineItem = new RequisitionLineItem();
 		boolean isFilter = false;
+
 		if (requestObj.get("id") != null) {
+			if (Long.parseLong(requestObj.get("id")) < 0) {
+				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+			}
+
 			requisitionLineItem.setId(Long.parseLong(requestObj.get("id")));
 			isFilter = true;
 		}
@@ -357,7 +372,23 @@ public class RequisitionLineItemService {
 		return list;
 	}
 
-	public void deleteRequisitionLineItem(Long id) {
+	public void deleteRequisitionLineItem(Long id)
+			throws IdNotFoundException, NegativeIdException, DataNotFoundException {
+		if (id == null) {
+			logger.error("Requisition line item could not be deleted. Vendor id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+		if (id < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+
+		Optional<RequisitionLineItem> reli = requisitionLineItemRepository.findById(id);
+
+		if (!reli.isPresent()) {
+			logger.error("Requisition line item could not be deleted. Requisition line item not found");
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
+		}
+
 		requisitionLineItemRepository.deleteById(id);
 	}
 

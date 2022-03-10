@@ -13,6 +13,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
@@ -28,6 +29,9 @@ import com.synectiks.procurement.domain.Roles;
 import com.synectiks.procurement.domain.Rules;
 import com.synectiks.procurement.repository.PurchaseOrderRepository;
 import com.synectiks.procurement.repository.RequisitionRepository;
+import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
+import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
+import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
 @Service
 public class PurchaseOrderService {
@@ -104,8 +108,29 @@ public class PurchaseOrderService {
 		return purchaseOrder;
 	}
 
-	public PurchaseOrder updatePurchaseOrder(ObjectNode obj){
+	public PurchaseOrder updatePurchaseOrder(ObjectNode obj) throws IdNotFoundException, NegativeIdException, DataNotFoundException{
+		
+		if(org.apache.commons.lang3.StringUtils.isBlank(obj.get("id").asText())) {
+			logger.error("Purchase order could not be updated. Purchase order id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+
+		Long reqId = Long.parseLong(obj.get("id").asText());
+		if(reqId < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+		
+		
+		
+		
+		
 		Optional<PurchaseOrder> ur = purchaseOrderRepository.findById(Long.parseLong(obj.get("id").asText()));
+		
+		if (!ur.isPresent()) {
+			logger.error("Purchase order  could not be updated. Purchase order  not found");
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
+		}
+		
 		if (!ur.isPresent()) {
 			logger.error("Purchase order not found");
 			return null;
@@ -145,11 +170,19 @@ public class PurchaseOrderService {
 		return purchaseOrder;
 	}
 
-	public List<PurchaseOrder> searchPurchaseOrder(@RequestParam Map<String, String> requestObj) {
+	public List<PurchaseOrder> searchPurchaseOrder(@RequestParam Map<String, String> requestObj) throws NegativeIdException {
 		PurchaseOrder purchaseOrder = new PurchaseOrder();
 
+	
 		boolean isFilter = false;
 		if (requestObj.get("id") != null) {
+			
+			Long reqId =Long.parseLong(requestObj.get("id"));
+			if(reqId < 0) {
+				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+			}
+			
+			
 			purchaseOrder.setId(Long.parseLong(requestObj.get("id")));
 			isFilter = true;
 		}
@@ -195,17 +228,44 @@ public class PurchaseOrderService {
 		return list;
 	}
 
-	public void deletePurchaseOrder(Long id) {
+	public boolean deletePurchaseOrder(Long id) throws IdNotFoundException, NegativeIdException, DataNotFoundException {
+		
+		if (id == null) {
+			logger.error("Purchase order could not be deleted. Purchase order id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+		if (id < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+
+		Optional<PurchaseOrder> purOr = purchaseOrderRepository.findById(id);
+
+		if (!purOr.isPresent()) {
+			logger.error("Purchase order could not be deleted. Purchase order not found");
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
+		}
+		
 		purchaseOrderRepository.deleteById(id);
+		logger.info("Purchase order deleted successfully");
+		return true;
+
+		
 	}
 
-	public boolean approvePurchaseOrder(ObjectNode obj){
+	public boolean approvePurchaseOrder(ObjectNode obj) throws IdNotFoundException, NegativeIdException, JSONException{
+		
+		
 		logger.info("Getting purchase order by id: " + obj);
 
-		try {
+	
 			if (obj.get("purchaseOrderId") == null) {
-				logger.error("purchase order id not found. Cannot approve .purchase order");
-				return false;
+				logger.error("Purchase order could not be updated. Purchase order id not found");
+				throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+			}
+			
+			Long purId = obj.get("purchaseOrderId").asLong();
+			if(purId < 0) {
+				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
 			}
 
 			if (obj.get("roleName") == null) {
@@ -280,10 +340,7 @@ public class PurchaseOrderService {
 
 			purchaseOrder = purchaseOrderRepository.save(purchaseOrder);
 			return true;
-		} catch (Exception e) {
-			logger.error("Approve purchase order failed. Exception: ", e);
-			return false;
-		}
+		
 	}
 
 }

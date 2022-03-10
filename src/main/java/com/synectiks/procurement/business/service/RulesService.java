@@ -21,35 +21,38 @@ import com.synectiks.procurement.config.Constants;
 import com.synectiks.procurement.domain.Roles;
 import com.synectiks.procurement.domain.Rules;
 import com.synectiks.procurement.repository.RulesRepository;
+import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
+import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
+import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 import com.synectiks.procurement.web.rest.errors.UniqueConstraintException;
 
 @Service
 public class RulesService {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(RulesService.class);
-	
+
 	@Autowired
 	private RolesService rolesService;
 
 	@Autowired
 	private RulesRepository rulesRepository;
 
-	public Rules addRules(ObjectNode obj) throws UniqueConstraintException{
+	public Rules addRules(ObjectNode obj) throws UniqueConstraintException {
 		Rules rules = new Rules();
 
 		if (obj.get("name").asText() != null) {
 			rules.setName(obj.get("name").asText());
 			List<Rules> ruleList = rulesRepository.findAll(Example.of(rules));
-			if(ruleList.size() > 0) {
+			if (ruleList.size() > 0) {
 				logger.error("Rule already exists. Duplicate rule not allowd");
-	        	UniqueConstraintException ex = new UniqueConstraintException("Duplicate rule not allowd");
-	        	throw ex;
+				UniqueConstraintException ex = new UniqueConstraintException("Duplicate rule not allowd");
+				throw ex;
 			}
 		} else {
 			logger.error("Rule could not be added. Rule missing");
 			return null;
 		}
-		
+
 //		if (obj.get("roleId") != null && obj.get("name") != null) {
 //			Roles rol = rolesService.getRoles(obj.get("roleId").asLong());
 //			if (rol != null) {	
@@ -68,7 +71,7 @@ public class RulesService {
 //				}
 //			}
 //		}
-		
+
 		if (obj.get("description") != null) {
 			rules.setDescription(obj.get("description").asText());
 		}
@@ -86,49 +89,58 @@ public class RulesService {
 			rules.setCreatedBy(Constants.SYSTEM_ACCOUNT);
 			rules.setUpdatedBy(Constants.SYSTEM_ACCOUNT);
 		}
-		
+
 		Instant now = Instant.now();
 		rules.setCreatedOn(now);
 		rules.setUpdatedOn(now);
-		
+
 		rules = rulesRepository.save(rules);
 		logger.info("Adding rule completed successfully. Rule: " + rules.toString());
 		return rules;
 	}
 
-	public Rules updateRules(ObjectNode obj) throws UniqueConstraintException, JSONException  {
-		
+	public Rules updateRules(ObjectNode obj) throws UniqueConstraintException, JSONException, IdNotFoundException, NegativeIdException, DataNotFoundException {
+
+		if (org.apache.commons.lang3.StringUtils.isBlank(obj.get("ruleId").asText())) {
+			logger.error("Rule could not be updated. Rule id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+
+		Long reqId = Long.parseLong(obj.get("ruleId").asText());
+		if (reqId < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+
 		Optional<Rules> oRule = rulesRepository.findById(Long.parseLong(obj.get("ruleId").asText()));
 		if (!oRule.isPresent()) {
-			logger.error("Rule not found");
-			return null;
+			logger.error("Rule could not be updated. Rule not found");
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
 		}
-		
+
 		Rules rules = oRule.get();
-		
-		
-			if (obj.get("roleName") != null && (!rules.getRoles().getName().equalsIgnoreCase(obj.get("roleName").asText()))) {
-				Map<String, String> requestObj = new HashMap<>();
-				requestObj.put("name", obj.get("roleName").asText());
-				List<Roles> roleList = rolesService.searchRoles(requestObj);
-				if(roleList.size() > 0) {
-					for(Roles rl: roleList) {
-						if(rl.getName().equalsIgnoreCase((rules.getName()))) {
-							logger.error("Rule already exists. Duplicate rule not allowed for role:" +rl.getName());
-							UniqueConstraintException ex = new UniqueConstraintException("Rule already exists. Duplicate rule not allowed for role:" +rl.getName());
-							throw ex;
-						}
+
+		if (obj.get("roleName") != null
+				&& (!rules.getRoles().getName().equalsIgnoreCase(obj.get("roleName").asText()))) {
+			Map<String, String> requestObj = new HashMap<>();
+			requestObj.put("name", obj.get("roleName").asText());
+			List<Roles> roleList = rolesService.searchRoles(requestObj);
+			if (roleList.size() > 0) {
+				for (Roles rl : roleList) {
+					if (rl.getName().equalsIgnoreCase((rules.getName()))) {
+						logger.error("Rule already exists. Duplicate rule not allowed for role:" + rl.getName());
+						UniqueConstraintException ex = new UniqueConstraintException(
+								"Rule already exists. Duplicate rule not allowed for role:" + rl.getName());
+						throw ex;
 					}
 				}
-				
 			}
 
-
+		}
 
 		if (obj.get("name") != null) {
 			rules.setName(obj.get("name").asText().toUpperCase());
 		}
-		
+
 		Optional<Rules> optional = rulesRepository.findOne(Example.of(rules));
 		if (optional.isPresent()) {
 			return null;
@@ -149,18 +161,24 @@ public class RulesService {
 		} else {
 			rules.setUpdatedBy(Constants.SYSTEM_ACCOUNT);
 		}
-		
+
 		rules.setUpdatedOn(Instant.now());
 		rules = rulesRepository.save(rules);
 		logger.info("Updateing rule completed successfully. Rule: " + rules.toString());
-		
+
 		return rules;
 	}
 
-	public List<Rules> searchRules(@RequestParam Map<String, String> requestObj) {
+	public List<Rules> searchRules(@RequestParam Map<String, String> requestObj) throws NegativeIdException {
 		Rules rules = new Rules();
 		boolean isFilter = false;
 		if (requestObj.get("id") != null) {
+			
+			Long reqId =Long.parseLong(requestObj.get("id"));
+			if(reqId < 0) {
+				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+			}
+			
 			rules.setId(Long.parseLong(requestObj.get("id")));
 			isFilter = true;
 		}
@@ -218,18 +236,17 @@ public class RulesService {
 		logger.warn("Rules not found");
 		return null;
 	}
-	
-	public Rules getRulesByName(String name) {
+
+	public Rules getRulesByName(String name) throws NegativeIdException {
 		logger.info("Getting rules by name: " + name);
 		Map<String, String> map = new HashMap<>();
 		map.put("name", name);
 		List<Rules> rules = searchRules(map);
-		if(rules.size() > 0) {
+		if (rules.size() > 0) {
 			return rules.get(0);
 		}
 		return null;
 	}
-
 
 //	public Rules getRulesByName(String name) {
 //		logger.info("Getting rules by name: " + name);
@@ -244,16 +261,16 @@ public class RulesService {
 //		logger.warn("Name not found");
 //		return null;
 //	}
-	
+
 	public List<Rules> getRulesByRole(Roles role) {
 		logger.info("Getting rules by role: " + role.getName());
 		Rules rules = new Rules();
 		rules.setRoles(role);
 		return rulesRepository.findAll(Example.of(rules));
 	}
-	
+
 	public Rules getRulesByRoleAndRuleName(Roles role, String ruleName) {
-		logger.info("Getting rules by role: " + role.getName()+" and rule name : "+ruleName);
+		logger.info("Getting rules by role: " + role.getName() + " and rule name : " + ruleName);
 		Rules rules = new Rules();
 		rules.setName(ruleName);
 		rules.setRoles(role);
