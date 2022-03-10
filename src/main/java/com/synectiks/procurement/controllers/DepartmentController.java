@@ -1,5 +1,6 @@
 package com.synectiks.procurement.controllers;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,10 +21,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.business.service.DepartmentService;
+import com.synectiks.procurement.config.BusinessValidationCodes;
 import com.synectiks.procurement.domain.Department;
+import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
+import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
+import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
 import io.github.jhipster.web.util.HeaderUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
+@Api(tags = "Department APIs")
 @RestController
 @RequestMapping("/api")
 //@Api(value = "/api", tags = "Department Management")
@@ -33,68 +41,112 @@ public class DepartmentController {
 	@Autowired
 	private DepartmentService departmentService;
 
+	@ApiOperation(value = "Create a new department")
 	@PostMapping("/department")
 	public ResponseEntity<Department> addDepartment(@RequestBody ObjectNode obj) {
 		logger.info("Request to add department");
-		Department department = departmentService.addDepartment(obj);
-		return ResponseEntity.status(HttpStatus.OK).body(department);
+		try {
+			Department department = departmentService.addDepartment(obj);
+			return ResponseEntity.status(HttpStatus.OK).body(department);
+		} catch (Exception e) {
+			logger.error("department buyer failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+		}
+		
 	}
 
+	@ApiOperation(value = "Update an existing department")
 	@PutMapping("/department")
 	public ResponseEntity<Department> updateDepartment(@RequestBody ObjectNode obj) {
-		logger.info("Request to update Department");
-		Department department = departmentService.updateDepartment(obj);
-		return ResponseEntity.status(HttpStatus.OK).body(department);
+		logger.info("Request to update department");
+		try {
+			Department department = departmentService.updateDepartment(obj);
+			return ResponseEntity.status(HttpStatus.OK).body(department);
+		} catch (NegativeIdException e) {
+			logger.error("Update department failed. NegativeIdException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+		} catch (IdNotFoundException e) {
+			logger.error("Update department failed. IdNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
+		}catch (DataNotFoundException e) {
+			logger.error("Delete department failed. DataNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
+		}
+		catch (Exception e) {
+			logger.error("Update department failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+		}
 
 	}
 
+	@ApiOperation(value = "Search department")
 	@GetMapping("/department")
 	public ResponseEntity<List<Department>> searchDepartment(@RequestParam Map<String, String> requestObj) {
 		logger.info("Request to get department on given filter criteria");
-		List<Department> list = departmentService.searchDepartment(requestObj);
-		return ResponseEntity.status(HttpStatus.OK).body(list);
+		try {
+			List<Department> list = departmentService.searchDepartment(requestObj);
+			return ResponseEntity.status(HttpStatus.OK).body(list);
+		} catch (NegativeIdException e) {
+			logger.error("Search department failed. NegativeIdException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+		}
+		catch (Exception e) {
+			logger.error("Search department failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+		}
+		
 	}
 
+	@ApiOperation(value = "Delete a department")
 	@DeleteMapping("/department/{id}")
-	public ResponseEntity<Void> deleteDepartment(@PathVariable Long id) {
-		departmentService.deleteDepartment(id);
-		return ResponseEntity.noContent()
-				.headers(HeaderUtil.createEntityDeletionAlert("department", false, "department", id.toString()))
-				.build();
+	public ResponseEntity<Boolean> deleteDepartment(@PathVariable Long id) {
+		try {
+			boolean dlDepartment = departmentService.deleteDepartment(id);
+			if (dlDepartment) {
+				return ResponseEntity.status(HttpStatus.OK).body(dlDepartment);
+			} else {
+				return ResponseEntity.status(HttpStatus.OK).body(dlDepartment);
+			} 
+			
+		} catch (NegativeIdException e) {
+			logger.error("Delete Department failed. NegativeIdException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+		} catch (IdNotFoundException e) {
+			logger.error("Delete Department failed. IdNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
+		} catch (DataNotFoundException e) {
+			logger.error("Delete Department failed. DataNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
+		} catch (Exception e) {
+			logger.error("Delete Department failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+		}
+//		departmentService.deleteDepartment(id);
+//		return ResponseEntity.noContent()
+//				.headers(HeaderUtil.createEntityDeletionAlert("department", false, "department", id.toString()))
+//				.build();
 	}
 
-//	@GetMapping("/getAllDepartment")
-//	private ResponseEntity<Status> getAllDepartment() {
-//		logger.info("Request to get all Department");
-//		Status st = new Status();
-//		try {
-//			List<Department> list = departmentService.getAllDepartment();
-//			if (list == null) {
-//				logger.error("Search all department failed");
-//				st.setCode(HttpStatus.EXPECTATION_FAILED.value());
-//				st.setType("ERROR");
-//				st.setMessage("Search all department failed");
-//				return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(st);
-//			}
-//			st.setCode(HttpStatus.OK.value());
-//			st.setType("SUCCESS");
-//			st.setMessage("Search all department successful");
-//			st.setObject(list);
-//			return ResponseEntity.status(HttpStatus.OK).body(st);
-//		} catch (Exception e) {
-//			logger.error("Search all department failed. Exception: ", e);
-//			st.setCode(HttpStatus.EXPECTATION_FAILED.value());
-//			st.setType("ERROR");
-//			st.setMessage("Search all department failed");
-//			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(st);
-//		}
-//	}
-
+	@ApiOperation(value = "Search a department by id")
 	@GetMapping("/department/{id}")
 	public ResponseEntity<Department> getDepartment(@PathVariable Long id) {
 		logger.info("Getting department by id: " + id);
-		Department department = departmentService.getDepartment(id);
-		return ResponseEntity.status(HttpStatus.OK).body(department);
-	}
+		Map<String, String> dep = new HashMap<>();
+		try {
+			Department department = null;
+			dep.put("id", String.valueOf(id));
+			List<Department> buyList = departmentService.searchDepartment(dep);
+			if(buyList.size() > 0) {
+				department = buyList.get(0);
+			}
+			return ResponseEntity.status(HttpStatus.OK).body(department);
+		}catch (NegativeIdException e) {
+			logger.error("Getting department by id failed. NegativeIdException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+		}catch (Exception e) {
+			logger.error("Getting department by id failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+		}
+ }
 
 }

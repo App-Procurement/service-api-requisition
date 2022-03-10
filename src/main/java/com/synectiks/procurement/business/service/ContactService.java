@@ -22,6 +22,9 @@ import com.synectiks.procurement.domain.Contact;
 import com.synectiks.procurement.domain.ContactActivity;
 import com.synectiks.procurement.repository.ContactActivityRepository;
 import com.synectiks.procurement.repository.ContactRepository;
+import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
+import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
+import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
 @Service
 public class ContactService {
@@ -92,11 +95,21 @@ public class ContactService {
 	}
 
 	@Transactional
-	public Contact updateContact(ObjectNode obj){
+	public Contact updateContact(ObjectNode obj) throws NegativeIdException, IdNotFoundException, DataNotFoundException{
+		
+		if(org.apache.commons.lang3.StringUtils.isBlank(obj.get("id").asText())) {
+			logger.error("Contact could not be updated. Contact id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+		
+		Long con = Long.parseLong(obj.get("id").asText());
+		if( con < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
 		Optional<Contact> ur = contactRepository.findById(Long.parseLong(obj.get("id").asText()));
 		if (!ur.isPresent()) {
 			logger.info("Contact id not found");
-			return null;
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
 		}
 		Contact contact = ur.get();
 		if (obj.get("firstName") != null) {
@@ -149,10 +162,15 @@ public class ContactService {
 		return contact;
 	}
 
-	public List<Contact> searchContact(Map<String, String> requestObj) {
+	public List<Contact> searchContact(Map<String, String> requestObj) throws NegativeIdException {
 		Contact contact = new Contact();
+		
 		boolean isFilter = false;
 		if (requestObj.get("id") != null) {
+			Long contactId =Long.parseLong(requestObj.get("id"));
+			if(contactId < 0) {
+				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+			}
 			contact.setId(Long.parseLong(requestObj.get("id")));
 			isFilter = true;
 		}
@@ -244,8 +262,24 @@ public class ContactService {
 		return null;
 	}
 
-	public void deleteContact(Long id) {
+	public boolean deleteContact(Long id) throws DataNotFoundException, NegativeIdException, IdNotFoundException {
+		
+		if (id == null) {
+			logger.error("Contact could not be deleted. Contact id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+		if (id < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+
+		Optional<Contact> contact = contactRepository.findById(id);
+
+		if (!contact.isPresent()) {
+			logger.error("Contact could not be deleted. Contact not found");
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
+		}
 		contactRepository.deleteById(id);
+		return true;
 	}
 
 }

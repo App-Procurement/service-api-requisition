@@ -18,6 +18,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.config.Constants;
 import com.synectiks.procurement.domain.Buyer;
 import com.synectiks.procurement.repository.BuyerRepository;
+import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
+import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
+import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
 @Service
 public class BuyerService {
@@ -27,16 +30,16 @@ public class BuyerService {
 	@Autowired
 	private BuyerRepository buyerRepository;
 
-	public Buyer getBuyer(Long id) {
-		logger.info("Getting buyer by id: " + id);
-		Optional<Buyer> buy = buyerRepository.findById(id);
-		if (buy.isPresent()) {
-			logger.info("Buyer: " + buy.get().toString());
-			return buy.get();
-		}
-		logger.warn("Buyer not found");
-		return null;
-	}
+//	public Buyer getBuyer(Long id) {
+//		logger.info("Getting buyer by id: " + id);
+//		Optional<Buyer> buy = buyerRepository.findById(id);
+//		if (buy.isPresent()) {
+//			logger.info("Buyer: " + buy.get().toString());
+//			return buy.get();
+//		}
+//		logger.warn("Buyer not found");
+//		return null;
+//	}
 
 	public Buyer addBuyer(ObjectNode obj) {
 		Buyer buyer = new Buyer();
@@ -81,12 +84,23 @@ public class BuyerService {
 		return buyer;
 	}
 
-	public Buyer updateBuyer(ObjectNode obj){
+	public Buyer updateBuyer(ObjectNode obj) throws NegativeIdException, IdNotFoundException, DataNotFoundException{
+		
+		if(org.apache.commons.lang3.StringUtils.isBlank(obj.get("id").asText())) {
+			logger.error("Buyer could not be updated. Buyer id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+		
+		Long buy = Long.parseLong(obj.get("id").asText());
+		if( buy < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
 		Optional<Buyer> bu = buyerRepository.findById(Long.parseLong(obj.get("id").asText()));
 		if (!bu.isPresent()) {
 			logger.error("Buyer not found");
-			return null;
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
 		}
+		
 		Buyer buyer = bu.get();
 
 		if (obj.get("firstName") != null) {
@@ -127,10 +141,16 @@ public class BuyerService {
 		return buyer;
 	}
 
-	public List<Buyer> searchBuyer(@RequestParam Map<String, String> requestObj) {
+	public List<Buyer> searchBuyer(@RequestParam Map<String, String> requestObj) throws NegativeIdException {
 		Buyer buyer = new Buyer();
 		boolean isFilter = false;
 		if (requestObj.get("id") != null) {
+			
+			Long buyId =Long.parseLong(requestObj.get("id"));
+			
+			if(buyId < 0) {
+				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+			}
 			buyer.setId(Long.parseLong(requestObj.get("id")));
 			isFilter = true;
 		}

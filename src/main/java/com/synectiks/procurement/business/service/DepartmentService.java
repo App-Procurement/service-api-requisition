@@ -13,8 +13,14 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.synectiks.procurement.config.Constants;
+import com.synectiks.procurement.domain.Buyer;
+import com.synectiks.procurement.domain.Currency;
 import com.synectiks.procurement.domain.Department;
 import com.synectiks.procurement.repository.DepartmentRepository;
+import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
+import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
+import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
 @Service
 public class DepartmentService {
@@ -44,11 +50,22 @@ public class DepartmentService {
 		return department;
 	}
 
-	public Department updateDepartment(ObjectNode obj) {
+	public Department updateDepartment(ObjectNode obj) throws IdNotFoundException, NegativeIdException, DataNotFoundException {
+		
+		if(org.apache.commons.lang3.StringUtils.isBlank(obj.get("id").asText())) {
+			logger.error("Department could not be updated. Department id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+		
+		Long dep = Long.parseLong(obj.get("id").asText());
+		if( dep < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+		
 		Optional<Department> ur = departmentRepository.findById(Long.parseLong(obj.get("id").asText()));
 		if (!ur.isPresent()) {
 			logger.warn("Department id not found");
-			return null;
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
 		}
 		Department department = ur.get();
 		department.setName(obj.get("name").asText());
@@ -57,10 +74,16 @@ public class DepartmentService {
 		return department;
 	}
 
-	public List<Department> searchDepartment(Map<String, String> requestObj) {
+	public List<Department> searchDepartment(Map<String, String> requestObj) throws NegativeIdException {
 		Department department = new Department();
 		boolean isFilter = false;
 		if (requestObj.get("id") != null) {
+	 
+			Long depId =Long.parseLong(requestObj.get("id"));
+			
+			if(depId < 0) {
+				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+			}
 			department.setId(Long.parseLong(requestObj.get("id")));
 			isFilter = true;
 		}
@@ -81,8 +104,24 @@ public class DepartmentService {
 
 	}
 
-	public void deleteDepartment(Long id) {
+	public boolean deleteDepartment(Long id) throws DataNotFoundException, NegativeIdException, IdNotFoundException {
+		if (id == null) {
+			logger.error("Department could not be deleted. Department id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+		if (id < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+
+		Optional<Department> department = departmentRepository.findById(id);
+
+		if (!department.isPresent()) {
+			logger.error("Department could not be deleted. Department not found");
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
+		}
+		
 		departmentRepository.deleteById(id);
+		return true;
 	}
 
 	public List<Department> getAllDepartment() {

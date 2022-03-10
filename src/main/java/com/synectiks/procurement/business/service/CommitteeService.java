@@ -22,6 +22,9 @@ import com.synectiks.procurement.domain.Committee;
 import com.synectiks.procurement.domain.CommitteeActivity;
 import com.synectiks.procurement.repository.CommitteeActivityRepository;
 import com.synectiks.procurement.repository.CommitteeRepository;
+import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
+import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
+import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
 @Service
 public class CommitteeService {
@@ -33,16 +36,16 @@ public class CommitteeService {
 	@Autowired
 	private CommitteeActivityRepository committeeActivityRepository;
 
-	public Committee getCommittee(Long id) {
-		logger.info("Getting committee by id: " + id);
-		Optional<Committee> ovn = committeeRepository.findById(id);
-		if (ovn.isPresent()) {
-			logger.info("Committee: " + ovn.get().toString());
-			return ovn.get();
-		}
-		logger.warn("Committee not found");
-		return null;
-	}
+//	public Committee getCommittee(Long id) {
+//		logger.info("Getting committee by id: " + id);
+//		Optional<Committee> ovn = committeeRepository.findById(id);
+//		if (ovn.isPresent()) {
+//			logger.info("Committee: " + ovn.get().toString());
+//			return ovn.get();
+//		}
+//		logger.warn("Committee not found");
+//		return null;
+//	}
 
 	@Transactional
 	public Committee addCommittee(ObjectNode obj)  {
@@ -89,11 +92,22 @@ public class CommitteeService {
 	}
 
 	@Transactional
-	public Committee updateCommittee(ObjectNode obj)  {
+	public Committee updateCommittee(ObjectNode obj) throws IdNotFoundException, NegativeIdException, DataNotFoundException  {
+		
+		if(org.apache.commons.lang3.StringUtils.isBlank(obj.get("id").asText())) {
+			logger.error("Committee could not be updated. Committee id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+		
+		Long comm = Long.parseLong(obj.get("id").asText());
+		if( comm < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+		
 		Optional<Committee> ur = committeeRepository.findById(Long.parseLong(obj.get("id").asText()));
 		if (!ur.isPresent()) {
 			logger.info("Committee id not found");
-			return null;
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
 		}
 
 		Committee committee = ur.get();
@@ -131,11 +145,21 @@ public class CommitteeService {
 		return committee;
 	}
 
-	public List<Committee> searchCommittee(Map<String, String> requestObj) {
+	public List<Committee> searchCommittee(Map<String, String> requestObj) throws NegativeIdException {
 		logger.info("Request to get committee on given filter criteria");
 		Committee committee = new Committee();
+		
+		
+		
+		
 		boolean isFilter = false;
 		if (requestObj.get("id") != null) {
+			
+			Long committeeId =Long.parseLong(requestObj.get("id"));
+			
+			if(committeeId < 0) {
+				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+			}
 			committee.setId(Long.parseLong(requestObj.get("id")));
 			isFilter = true;
 		}

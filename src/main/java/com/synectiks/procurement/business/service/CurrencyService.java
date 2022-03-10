@@ -13,8 +13,12 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.synectiks.procurement.config.Constants;
 import com.synectiks.procurement.domain.Currency;
 import com.synectiks.procurement.repository.CurrencyRepository;
+import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
+import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
+import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
 @Service
 public class CurrencyService {
@@ -55,11 +59,22 @@ public class CurrencyService {
 		return currency;
 	}
 
-	public Currency updateCurrency(ObjectNode obj){
+	public Currency updateCurrency(ObjectNode obj) throws IdNotFoundException, NegativeIdException, DataNotFoundException{
+		
+		if(org.apache.commons.lang3.StringUtils.isBlank(obj.get("id").asText())) {
+			logger.error("Currency could not be updated. Currency id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+		
+		Long curr = Long.parseLong(obj.get("id").asText());
+		if( curr < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+		
 		Optional<Currency> ur = currencyRepository.findById(Long.parseLong(obj.get("id").asText()));
 		if (!ur.isPresent()) {
 			logger.warn("Currency id not found");
-			return null;
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
 		}
 		Currency currency = ur.get();
 
@@ -80,8 +95,12 @@ public class CurrencyService {
 		return currency;
 	}
 
-	public List<Currency> searchCurrency(Map<String, String> requestObj) {
+	public List<Currency> searchCurrency(Map<String, String> requestObj) throws NegativeIdException {
 		Currency currency = new Currency();
+		Long currencyId =Long.parseLong(requestObj.get("id"));
+		if(currencyId < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
 		boolean isFilter = false;
 		if (requestObj.get("id") != null) {
 			currency.setId(Long.parseLong(requestObj.get("id")));
@@ -121,7 +140,25 @@ public class CurrencyService {
 
 	}
 
-	public void deleteCurrency(Long id) {
+	public boolean deleteCurrency(Long id) throws IdNotFoundException, NegativeIdException, DataNotFoundException {
+		if (id == null) {
+			logger.error("Currency could not be deleted. Currency id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+		if (id < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+
+		Optional<Currency> currency = currencyRepository.findById(id);
+
+		if (!currency.isPresent()) {
+			logger.error("Currency could not be deleted. Currency not found");
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
+		}
 		currencyRepository.deleteById(id);
+		
+		return true;
+
+	
 	}
 }
