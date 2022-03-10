@@ -22,6 +22,9 @@ import com.synectiks.procurement.domain.RequisitionLineItem;
 import com.synectiks.procurement.repository.ContactRepository;
 import com.synectiks.procurement.repository.DocumentRepository;
 import com.synectiks.procurement.repository.RequisitionLineItemRepository;
+import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
+import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
+import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
 @Service
 public class DocumentService {
@@ -47,7 +50,7 @@ public class DocumentService {
 		return null;
 	}
 
-	public Document addDocument(ObjectNode obj){
+	public Document addDocument(ObjectNode obj) {
 		Document document = new Document();
 		Optional<Contact> oc = contactRepository.findById(Long.parseLong(obj.get("contactId").asText()));
 		if (oc.isPresent()) {
@@ -99,18 +102,30 @@ public class DocumentService {
 		return document;
 	}
 
-	public Document saveDocument(Document document){
+	public Document saveDocument(Document document) {
 		document = documentRepository.save(document);
 		logger.info("Document saved successfully: " + document.toString());
 
 		return document;
 	}
-	
-	public Document updateDocument(ObjectNode obj){
+
+	public Document updateDocument(ObjectNode obj)
+			throws IdNotFoundException, NegativeIdException, DataNotFoundException {
+
+		if (org.apache.commons.lang3.StringUtils.isBlank(obj.get("id").asText())) {
+			logger.error("Document could not be updated. Document id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+
+		Long reqId = Long.parseLong(obj.get("id").asText());
+		if (reqId < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+
 		Optional<Document> odc = documentRepository.findById(Long.parseLong(obj.get("id").asText()));
 		if (!odc.isPresent()) {
-			logger.error("Document id not found");
-			return null;
+			logger.error("Document could not be updated. Document not found");
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
 		}
 		Document document = odc.get();
 
@@ -156,13 +171,19 @@ public class DocumentService {
 
 	}
 
-	public List<Document> searchDocument(@RequestParam Map<String, String> requestObj) {
+	public List<Document> searchDocument(@RequestParam Map<String, String> requestObj) throws NegativeIdException {
 		logger.info("Request to search document on given filter criteria");
 		Document document = new Document();
 
 		boolean isFilter = false;
-		
+
 		if (requestObj.get("id") != null) {
+
+			Long reqId = Long.parseLong(requestObj.get("id"));
+			if (reqId < 0) {
+				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+			}
+
 			document.setId(Long.parseLong(requestObj.get("id")));
 			isFilter = true;
 		}
@@ -229,7 +250,7 @@ public class DocumentService {
 			document.setUpdatedOn(instant);
 			isFilter = true;
 		}
-	    if (requestObj.get("updatedBy") != null) {
+		if (requestObj.get("updatedBy") != null) {
 			document.setUpdatedBy(requestObj.get("updatedBy"));
 			isFilter = true;
 		}
@@ -243,8 +264,24 @@ public class DocumentService {
 		return list;
 	}
 
-	public void deleteDocument(Long id) {
+	public boolean deleteDocument(Long id) throws IdNotFoundException, NegativeIdException, DataNotFoundException {
+		
+		if (id == null) {
+			logger.error("Document could not be deleted. Document id not found");
+			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
+		}
+		if (id < 0) {
+			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+		}
+
+		Optional<Document> document = documentRepository.findById(id);
+
+		if (!document.isPresent()) {
+			logger.error("Document could not be deleted. Document not found");
+			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
+		}
 		documentRepository.deleteById(id);
+		return true;
 	}
 
 }

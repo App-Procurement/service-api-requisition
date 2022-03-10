@@ -67,7 +67,7 @@ public class CommitteeMembersService {
 	}
 
 	@Transactional
-	public CommitteeMember addCommitteeMember(String obj, MultipartFile file) throws IOException, JSONException {
+	public CommitteeMember addCommitteeMember(String obj, MultipartFile file) throws IOException, JSONException, NegativeIdException {
 		CommitteeMember committeeMember = new CommitteeMember();
 
 		ObjectMapper mapper = new ObjectMapper();
@@ -192,7 +192,7 @@ public class CommitteeMembersService {
 		committeeMember.setCommitteeList(cmaList);
 	}
 
-	private void getDocumentList(CommitteeMember committeeMember) {
+	private void getDocumentList(CommitteeMember committeeMember) throws NegativeIdException {
 		Map<String, String> requestObj = new HashMap<>();
 		requestObj.put("sourceId", String.valueOf(committeeMember.getId()));
 		List<Document> docList = documentService.searchDocument(requestObj);
@@ -205,7 +205,7 @@ public class CommitteeMembersService {
 		committeeMember.setDocumentList(finalDocList);
 	}
 
-	private void setProfileImage(CommitteeMember committeeMember) throws IOException {
+	private void setProfileImage(CommitteeMember committeeMember) throws IOException, NegativeIdException {
 		Map<String, String> requestObj = new HashMap<>();
 		requestObj.put("sourceId", String.valueOf(committeeMember.getId()));
 		requestObj.put("identifier", Constants.IDENTIFIER_PROFILE_IMAGE);
@@ -309,7 +309,7 @@ public class CommitteeMembersService {
 	}
 
 	private void updateProfileImage(MultipartFile file, ObjectNode json, CommitteeMember committeeMember, Instant now)
-			throws IOException, JSONException {
+			throws IOException, JSONException, NegativeIdException {
 		if (file != null) {
 			byte[] bytes = file.getBytes();
 			String orgFileName = StringUtils.cleanPath(file.getOriginalFilename());
@@ -504,7 +504,7 @@ public class CommitteeMembersService {
 	}
 
 	private void filterCommittee(Map<Long, CommitteeMember> cmMap, CommitteeAndMemberLink cm, CommitteeMember comObj,
-			List<CommitteeAndMemberAssociation> cmasList) throws IOException {
+			List<CommitteeAndMemberAssociation> cmasList) throws IOException, NegativeIdException {
 		CommitteeAndMemberAssociation obj = new CommitteeAndMemberAssociation();
 		obj.setCommittee(cm.getCommittee());
 		obj.setMemberStatus(cm.getStatus());
@@ -514,5 +514,4 @@ public class CommitteeMembersService {
 		setProfileImage(comObj);
 		cmMap.put(cm.getCommitteeMember().getId(), comObj);
 	}
-
 }

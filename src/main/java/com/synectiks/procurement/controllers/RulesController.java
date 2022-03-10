@@ -20,16 +20,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.business.service.RulesService;
 import com.synectiks.procurement.config.BusinessValidationCodes;
+import com.synectiks.procurement.config.Constants;
 import com.synectiks.procurement.domain.Rules;
 import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
 import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
 import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 import com.synectiks.procurement.web.rest.errors.UniqueConstraintException;
 
-import io.github.jhipster.web.util.HeaderUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -106,14 +107,52 @@ public class RulesController {
 	}
 	
 	
-	@ApiOperation(value = "Delete a rules")
+	
+
+	@ApiOperation(value = "Delete a rule")
 	@DeleteMapping("/rules/{id}")
-	public ResponseEntity<Void> deleteRules(@PathVariable Long id) {
+	public ResponseEntity<Boolean> deleterules(@PathVariable Long id) {
 		logger.info("Request to delete a rules");
-		rulesService.deleteRules(id);
-		return ResponseEntity.noContent()
-				.headers(HeaderUtil.createEntityDeletionAlert("rules", false, "rules", id.toString())).build();
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode obj = mapper.createObjectNode();
+		obj.put("ruleId", id);
+		obj.put("status", Constants.STATUS_DEACTIVE);
+		try {
+		Rules bu=rulesService.updateRules(obj);
+			if(Constants.STATUS_DEACTIVE.equalsIgnoreCase(bu.getStatus())){
+				return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
+			}else {
+				return ResponseEntity.status(BusinessValidationCodes.DELETION_FAILED.value()).body(Boolean.FALSE);
+			}
+		} 
+		catch (NegativeIdException e) {
+			logger.error("Update rules failed. NegativeIdException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+		} catch (IdNotFoundException e) {
+			logger.error("Update rules failed. IdNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
+		} catch (DataNotFoundException e) {
+			logger.error("Delete rules failed. DataNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
+		}
+		catch (Exception e) {
+			logger.error("Delete rules failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+		}
+			
 	}
+	
+	
+	
+	
+//	@ApiOperation(value = "Delete a rules")
+//	@DeleteMapping("/rules/{id}")
+//	public ResponseEntity<Void> deleteRules(@PathVariable Long id) {
+//		logger.info("Request to delete a rules");
+//		rulesService.deleteRules(id);
+//		return ResponseEntity.noContent()
+//				.headers(HeaderUtil.createEntityDeletionAlert("rules", false, "rules", id.toString())).build();
+//	}
 
 	
 	@ApiOperation(value = "Search a rule by id")

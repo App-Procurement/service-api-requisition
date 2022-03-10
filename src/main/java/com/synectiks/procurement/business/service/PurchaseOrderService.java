@@ -119,11 +119,7 @@ public class PurchaseOrderService {
 		if(reqId < 0) {
 			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
 		}
-		
-		
-		
-		
-		
+	
 		Optional<PurchaseOrder> ur = purchaseOrderRepository.findById(Long.parseLong(obj.get("id").asText()));
 		
 		if (!ur.isPresent()) {
@@ -140,12 +136,19 @@ public class PurchaseOrderService {
 		if (obj.get("poNo") != null) {
 			purchaseOrder.setPoNo(obj.get("poNo").asText());
 		}
+		
+		if (obj.get("status") != null) {
+			purchaseOrder.setStatus(obj.get("status").asText());
+		}
+		
 		if (obj.get("termsAndConditions") != null) {
 			purchaseOrder.setTermsAndConditions(obj.get("termsAndConditions").asText());
 		}
+		
 		if (obj.get("notes") != null) {
 			purchaseOrder.setNotes(obj.get("notes").asText());
 		}
+		
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.DEFAULT_DATE_FORMAT);
 		if (obj.get("dueDate") != null) {
 			LocalDate localDate = LocalDate.parse(obj.get("dueDate").asText(), formatter);

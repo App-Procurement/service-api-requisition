@@ -132,25 +132,25 @@ public class RolesService {
 		}
 		Roles roles = ur.get();
 
-		try {
-			Roles rol = new Roles();
-			if (obj.get("name") != null) {
-				rol.setName(obj.get("name").asText());
-			}
-			List<Roles> roleList = rolesRepository.findAll(Example.of(rol));
-			if (roleList.size() > 0) {
-				for (Roles rl : roleList) {
-					if (rl.getName().equalsIgnoreCase(obj.get("name").asText())) {
-						logger.error("Duplicate role not allowd");
-						UniqueConstraintException ex = new UniqueConstraintException("Duplicate role not allowd");
-						throw ex;
-					}
-				}
-			}
-		} catch (Exception e) {
-			logger.error("Exception in validating duplicate role. Exception: ", e);
-			throw e;
-		}
+//		try {
+//			Roles rol = new Roles();
+//			if (obj.get("name") != null) {
+//				rol.setName(obj.get("name").asText());
+//			}
+//			List<Roles> roleList = rolesRepository.findAll(Example.of(rol));
+//			if (roleList.size() > 0) {
+//				for (Roles rl : roleList) {
+//					if (rl.getName().equalsIgnoreCase(obj.get("name").asText())) {
+//						logger.error("Duplicate role not allowd");
+//						UniqueConstraintException ex = new UniqueConstraintException("Duplicate role not allowd");
+//						throw ex;
+//					}
+//				}
+//			}
+//		} catch (Exception e) {
+//			logger.error("Exception in validating duplicate role. Exception: ", e);
+//			throw e;
+//		}
 
 		if (obj.get("name") != null) {
 			roles.setName(obj.get("name").asText());

@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.config.Constants;
-import com.synectiks.procurement.domain.Buyer;
-import com.synectiks.procurement.domain.Currency;
 import com.synectiks.procurement.domain.Department;
 import com.synectiks.procurement.repository.DepartmentRepository;
 import com.synectiks.procurement.web.rest.errors.DataNotFoundException;

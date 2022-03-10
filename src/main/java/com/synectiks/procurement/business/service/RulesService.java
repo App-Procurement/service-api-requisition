@@ -119,32 +119,32 @@ public class RulesService {
 
 		Rules rules = oRule.get();
 
-		if (obj.get("roleName") != null
-				&& (!rules.getRoles().getName().equalsIgnoreCase(obj.get("roleName").asText()))) {
-			Map<String, String> requestObj = new HashMap<>();
-			requestObj.put("name", obj.get("roleName").asText());
-			List<Roles> roleList = rolesService.searchRoles(requestObj);
-			if (roleList.size() > 0) {
-				for (Roles rl : roleList) {
-					if (rl.getName().equalsIgnoreCase((rules.getName()))) {
-						logger.error("Rule already exists. Duplicate rule not allowed for role:" + rl.getName());
-						UniqueConstraintException ex = new UniqueConstraintException(
-								"Rule already exists. Duplicate rule not allowed for role:" + rl.getName());
-						throw ex;
-					}
-				}
-			}
-
-		}
+//		if (obj.get("roleName") != null && (!rules.getRoles().getName().equalsIgnoreCase(obj.get("roleName").asText()))) {
+//			Map<String, String> requestObj = new HashMap<>();
+//			requestObj.put("name", obj.get("roleName").asText());
+//			List<Roles> roleList = rolesService.searchRoles(requestObj);
+//			if (roleList.size() > 0) {
+//				for (Roles rl : roleList) {
+//					if (rl.getName().equalsIgnoreCase((rules.getName()))) {
+//						logger.error("Rule already exists. Duplicate rule not allowed for role:" + rl.getName());
+//						UniqueConstraintException ex = new UniqueConstraintException(
+//								"Rule already exists. Duplicate rule not allowed for role:" + rl.getName());
+//						throw ex;
+//					}
+//				}
+//			}
+//
+//		}
 
 		if (obj.get("name") != null) {
 			rules.setName(obj.get("name").asText().toUpperCase());
 		}
 
-		Optional<Rules> optional = rulesRepository.findOne(Example.of(rules));
-		if (optional.isPresent()) {
-			return null;
-		}
+//		Optional<Rules> optional = rulesRepository.findOne(Example.of(rules));
+//		if (optional.isPresent()) {
+//			return null;
+//		}
+		
 		if (obj.get("description") != null) {
 			rules.setDescription(obj.get("description").asText());
 		}

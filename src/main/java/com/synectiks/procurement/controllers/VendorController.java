@@ -19,9 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.business.service.VendorService;
 import com.synectiks.procurement.config.BusinessValidationCodes;
+import com.synectiks.procurement.config.Constants;
 import com.synectiks.procurement.domain.Vendor;
 import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
 import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
@@ -75,7 +77,6 @@ public class VendorController {
 		}
 	}
 
-	
 	@ApiOperation(value = "Search vendor")
 	@GetMapping("/vendor")
 	public ResponseEntity<List<Vendor>> searchVendor(@RequestParam Map<String, String> requestObj) {
@@ -95,14 +96,18 @@ public class VendorController {
 
 	@ApiOperation(value = "Delete a vendor")
 	@DeleteMapping("/vendor/{id}")
-	public ResponseEntity<Boolean> deleteVendor(@PathVariable Long id) {
+	public ResponseEntity<Boolean> deletevendor(@PathVariable Long id) {
 		logger.info("Request to delete a vendor");
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode obj = mapper.createObjectNode();
+		obj.put("id", id);
+		obj.put("status", Constants.STATUS_DEACTIVE);
 		try {
-			boolean delVendor = vendorService.deleteVender(id);
-			if (delVendor) {
-				return ResponseEntity.status(HttpStatus.OK).body(delVendor);
+			Vendor bu = vendorService.updateVendor(obj);
+			if (Constants.STATUS_DEACTIVE.equalsIgnoreCase(bu.getStatus())) {
+				return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
 			} else {
-				return ResponseEntity.status(HttpStatus.OK).body(!delVendor);
+				return ResponseEntity.status(BusinessValidationCodes.DELETION_FAILED.value()).body(Boolean.FALSE);
 			}
 		} catch (NegativeIdException e) {
 			logger.error("Delete vendor failed. NegativeIdException: ", e.getMessage());
@@ -117,7 +122,34 @@ public class VendorController {
 			logger.error("Delete vendor failed. Exception: ", e);
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
+
 	}
+
+//	@ApiOperation(value = "Delete a vendor")
+//	@DeleteMapping("/vendor/{id}")
+//	public ResponseEntity<Boolean> deleteVendor(@PathVariable Long id) {
+//		logger.info("Request to delete a vendor");
+//		try {
+//			boolean delVendor = vendorService.deleteVender(id);
+//			if (delVendor) {
+//				return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
+//			} else {
+//				return ResponseEntity.status(BusinessValidationCodes.DELETION_FAILED.value()).body(Boolean.FALSE);
+//			}
+//		} catch (NegativeIdException e) {
+//			logger.error("Delete vendor failed. NegativeIdException: ", e.getMessage());
+//			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+//		} catch (IdNotFoundException e) {
+//			logger.error("Delete vendor failed. IdNotFoundException: ", e.getMessage());
+//			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
+//		} catch (DataNotFoundException e) {
+//			logger.error("Delete vendor failed. DataNotFoundException: ", e.getMessage());
+//			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
+//		} catch (Exception e) {
+//			logger.error("Delete vendor failed. Exception: ", e);
+//			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+//		}
+//	}
 
 	@ApiOperation(value = "Search a vendor by id")
 	@GetMapping("/vendor/{id}")

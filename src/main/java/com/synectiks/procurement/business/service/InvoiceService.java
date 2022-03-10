@@ -167,6 +167,10 @@ public class InvoiceService {
 		if (obj.get("amount") != null) {
 			invoice.setAmount(obj.get("amount").asInt());
 		}
+		
+		if (obj.get("status") != null) {
+			invoice.setStatus(obj.get("status").asText());
+		}
 
 		if (obj.get("modeOfPayment") != null) {
 			invoice.setModeOfPayment(obj.get("modeOfPayment").asText());

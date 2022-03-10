@@ -12,6 +12,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.validator.constraints.UniqueElements;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
@@ -28,7 +30,8 @@ public class Roles implements Serializable {
 	@SequenceGenerator(name = "sequenceGenerator")
 	private Long id;
 
-	@Column(name = "name")
+	
+	@Column(name = "name", unique = true)
 	private String name;
 
 	@Column(name = "description")

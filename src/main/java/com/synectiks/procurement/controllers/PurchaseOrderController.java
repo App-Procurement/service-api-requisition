@@ -20,9 +20,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.business.service.PurchaseOrderService;
 import com.synectiks.procurement.config.BusinessValidationCodes;
+import com.synectiks.procurement.config.Constants;
 import com.synectiks.procurement.domain.PurchaseOrder;
 import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
 import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
@@ -94,32 +96,69 @@ public class PurchaseOrderController {
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
 	}
-
-	@ApiOperation(value = "Delete a Purchase order")
+	
+	
+	
+	
+	@ApiOperation(value = "Delete a purchaseOrder")
 	@DeleteMapping("/purchaseOrder/{id}")
-	public ResponseEntity<Boolean> deletePurchaseOrder(@PathVariable Long id) {
-
+	public ResponseEntity<Boolean> deletepurchaseOrder(@PathVariable Long id) {
+		logger.info("Request to delete a purchaseOrder");
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode obj = mapper.createObjectNode();
+		obj.put("id", id);
+		obj.put("status", Constants.STATUS_DEACTIVE);
 		try {
-			boolean delpurch = purchaseOrderService.deletePurchaseOrder(id);
-			if (delpurch) {
-				return ResponseEntity.status(HttpStatus.OK).body(delpurch);
-			} else {
-				return ResponseEntity.status(HttpStatus.OK).body(!delpurch);
+		PurchaseOrder bu=purchaseOrderService.updatePurchaseOrder(obj);
+			if(Constants.STATUS_DEACTIVE.equalsIgnoreCase(bu.getStatus())){
+				return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
+			}else {
+				return ResponseEntity.status(BusinessValidationCodes.DELETION_FAILED.value()).body(Boolean.FALSE);
 			}
-		} catch (NegativeIdException e) {
-			logger.error("Delete purchase orders failed. NegativeIdException: ", e.getMessage());
+		} 
+		catch (NegativeIdException e) {
+			logger.error("Delete purchaseOrder failed. NegativeIdException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
 		} catch (IdNotFoundException e) {
-			logger.error("Delete purchase orders failed. IdNotFoundException: ", e.getMessage());
+			logger.error("Delete purchaseOrder failed. IdNotFoundException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
 		} catch (DataNotFoundException e) {
-			logger.error("Delete purchase orders failed. DataNotFoundException: ", e.getMessage());
+			logger.error("Delete purchaseOrder failed. DataNotFoundException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
-		} catch (Exception e) {
-			logger.error("Delete purchase orders failed. Exception: ", e);
+		}
+		catch (Exception e) {
+			logger.error("Delete purchaseOrder failed. Exception: ", e);
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
+			
 	}
+	
+
+//	@ApiOperation(value = "Delete a Purchase order")
+//	@DeleteMapping("/purchaseOrder/{id}")
+//	public ResponseEntity<Boolean> deletePurchaseOrder(@PathVariable Long id) {
+//
+//		try {
+//			boolean delpurch = purchaseOrderService.deletePurchaseOrder(id);
+//			if (delpurch) {
+//				return ResponseEntity.status(HttpStatus.OK).body(delpurch);
+//			} else {
+//				return ResponseEntity.status(HttpStatus.OK).body(!delpurch);
+//			}
+//		} catch (NegativeIdException e) {
+//			logger.error("Delete purchase orders failed. NegativeIdException: ", e.getMessage());
+//			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+//		} catch (IdNotFoundException e) {
+//			logger.error("Delete purchase orders failed. IdNotFoundException: ", e.getMessage());
+//			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
+//		} catch (DataNotFoundException e) {
+//			logger.error("Delete purchase orders failed. DataNotFoundException: ", e.getMessage());
+//			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
+//		} catch (Exception e) {
+//			logger.error("Delete purchase orders failed. Exception: ", e);
+//			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+//		}
+//	}
 
 	@ApiOperation(value = "Search a purchase order by id")
 	@GetMapping("/purchaseOrder/{id}")

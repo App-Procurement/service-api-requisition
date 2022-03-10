@@ -19,15 +19,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.business.service.InvoiceService;
 import com.synectiks.procurement.config.BusinessValidationCodes;
+import com.synectiks.procurement.config.Constants;
 import com.synectiks.procurement.domain.Invoice;
 import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
 import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
 import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
-import io.github.jhipster.web.util.HeaderUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -94,13 +95,51 @@ public class InvoiceController {
 
 	}
 
+
 	@ApiOperation(value = "Delete a invoice")
 	@DeleteMapping("/invoice/{id}")
-	public ResponseEntity<Void> deleteInvoice(@PathVariable Long id) {
-		invoiceService.deleteInvoice(id);
-		return ResponseEntity.noContent()
-				.headers(HeaderUtil.createEntityDeletionAlert("invoice", false, "invoice", id.toString())).build();
+	public ResponseEntity<Boolean> deleteinvoice(@PathVariable Long id) {
+		logger.info("Request to delete a invoice");
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode obj = mapper.createObjectNode();
+		obj.put("id", id);
+		obj.put("status", Constants.STATUS_DEACTIVE);
+		try {
+		Invoice bu=invoiceService.updateinvoice(obj);
+			if(Constants.STATUS_DEACTIVE.equalsIgnoreCase(bu.getStatus())){
+				return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
+			}else {
+				return ResponseEntity.status(BusinessValidationCodes.DELETION_FAILED.value()).body(Boolean.FALSE);
+			}
+		} 
+		catch (NegativeIdException e) {
+			logger.error("Delete invoice failed. NegativeIdException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+		} catch (IdNotFoundException e) {
+			logger.error("Delete invoice failed. IdNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
+		} catch (DataNotFoundException e) {
+			logger.error("Delete invoice failed. DataNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
+		}
+		catch (Exception e) {
+			logger.error("Delete invoice failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+		}
+			
 	}
+	
+	
+	
+	
+	
+//	@ApiOperation(value = "Delete a invoice")
+//	@DeleteMapping("/invoice/{id}")
+//	public ResponseEntity<Void> deleteInvoice(@PathVariable Long id) {
+//		invoiceService.deleteInvoice(id);
+//		return ResponseEntity.noContent()
+//				.headers(HeaderUtil.createEntityDeletionAlert("invoice", false, "invoice", id.toString())).build();
+//	}
 
 	@ApiOperation(value = "Search a invoice by id")
 	@GetMapping("/invoice/{id}")

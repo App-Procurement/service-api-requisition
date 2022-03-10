@@ -56,6 +56,8 @@ public class Contact implements Serializable {
 
     @Column(name = "invite_status")
     private String inviteStatus;
+    
+    
 
     @Column(name = "invitation_link")
     private String invitationLink;

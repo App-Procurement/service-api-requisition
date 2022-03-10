@@ -19,16 +19,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.business.service.RolesService;
 import com.synectiks.procurement.config.BusinessValidationCodes;
+import com.synectiks.procurement.config.Constants;
 import com.synectiks.procurement.domain.Roles;
 import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
 import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
 import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 import com.synectiks.procurement.web.rest.errors.UniqueConstraintException;
 
-import io.github.jhipster.web.util.HeaderUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -102,13 +103,44 @@ public class RolesController {
 
 	@ApiOperation(value = "Delete a role")
 	@DeleteMapping("/roles/{id}")
-	public ResponseEntity<Void> deleteRoles(@PathVariable Long id) {
-		logger.info("Request to delete a role");
-		rolesService.deleteRoles(id);
-		return ResponseEntity.noContent()
-				.headers(HeaderUtil.createEntityDeletionAlert("roles", false, "roles", id.toString())).build();
+	public ResponseEntity<Boolean> deleteroles(@PathVariable Long id) {
+		logger.info("Request to delete a roles");
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode obj = mapper.createObjectNode();
+		obj.put("id", id);
+		obj.put("status", Constants.STATUS_DEACTIVE);
+		try {
+			Roles bu = rolesService.updateRoles(obj);
+			if (Constants.STATUS_DEACTIVE.equalsIgnoreCase(bu.getStatus())) {
+				return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
+			} else {
+				return ResponseEntity.status(BusinessValidationCodes.DELETION_FAILED.value()).body(Boolean.FALSE);
+			}
+		} catch (NegativeIdException e) {
+			logger.error("Delete roles failed. NegativeIdException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+		} catch (IdNotFoundException e) {
+			logger.error("Delete roles failed. IdNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
+		} catch (DataNotFoundException e) {
+			logger.error("Delete roles failed. DataNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
+		} catch (Exception e) {
+			logger.error("Delete roles failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+		}
 
 	}
+
+//	@ApiOperation(value = "Delete a role")
+//	@DeleteMapping("/roles/{id}")
+//	public ResponseEntity<Void> deleteRoles(@PathVariable Long id) {
+//		logger.info("Request to delete a role");
+//		rolesService.deleteRoles(id);
+//		return ResponseEntity.noContent()
+//				.headers(HeaderUtil.createEntityDeletionAlert("roles", false, "roles", id.toString())).build();
+//
+//	}
 
 	@ApiOperation(value = "Search a role by id")
 	@GetMapping("/roles/{id}")
@@ -131,6 +163,5 @@ public class RolesController {
 			logger.error("Getting role by id failed. Exception: ", e);
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
-
 	}
 }

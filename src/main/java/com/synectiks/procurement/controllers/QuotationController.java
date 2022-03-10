@@ -1,6 +1,7 @@
 package com.synectiks.procurement.controllers;
 
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -20,9 +21,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.business.service.QuotationService;
 import com.synectiks.procurement.config.BusinessValidationCodes;
+import com.synectiks.procurement.config.Constants;
 import com.synectiks.procurement.domain.Quotation;
 import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
 import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
@@ -39,9 +42,6 @@ public class QuotationController {
 
 	@Autowired
 	private QuotationService quotationService;
-
-	
-
 
 	@ApiOperation(value = "Create a new quotation")
 	@PostMapping("/quotation")
@@ -69,7 +69,6 @@ public class QuotationController {
 		}
 	}
 
-	
 	@ApiOperation(value = "Update an existing quotation")
 	@PutMapping("/quotation")
 	public ResponseEntity<Quotation> updateQuotation(@RequestBody ObjectNode obj)
@@ -114,14 +113,18 @@ public class QuotationController {
 
 	@ApiOperation(value = "Delete a quotation")
 	@DeleteMapping("/quotation/{id}")
-	public ResponseEntity<Boolean> deleteQuotation(@PathVariable Long id) {
-
+	public ResponseEntity<Boolean> deletequotation(@PathVariable Long id) {
+		logger.info("Request to delete a quotation");
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode obj = mapper.createObjectNode();
+		obj.put("id", id);
+		obj.put("status", Constants.STATUS_DEACTIVE);
 		try {
-			boolean delQuotation = quotationService.deleteQuotation(id);
-			if (delQuotation) {
-				return ResponseEntity.status(HttpStatus.OK).body(delQuotation);
+			Quotation bu = quotationService.updateQuotation(obj);
+			if (Constants.STATUS_DEACTIVE.equalsIgnoreCase(bu.getStatus())) {
+				return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
 			} else {
-				return ResponseEntity.status(HttpStatus.OK).body(!delQuotation);
+				return ResponseEntity.status(BusinessValidationCodes.DELETION_FAILED.value()).body(Boolean.FALSE);
 			}
 		} catch (NegativeIdException e) {
 			logger.error("Delete quotation failed. NegativeIdException: ", e.getMessage());
@@ -138,12 +141,56 @@ public class QuotationController {
 		}
 
 	}
-	
+
+//	@ApiOperation(value = "Delete a quotation")
+//	@DeleteMapping("/quotation/{id}")
+//	public ResponseEntity<Boolean> deleteQuotation(@PathVariable Long id) {
+//
+//		try {
+//			boolean delQuotation = quotationService.deleteQuotation(id);
+//			if (delQuotation) {
+//				return ResponseEntity.status(HttpStatus.OK).body(delQuotation);
+//			} else {
+//				return ResponseEntity.status(HttpStatus.OK).body(!delQuotation);
+//			}
+//		} catch (NegativeIdException e) {
+//			logger.error("Delete quotation failed. NegativeIdException: ", e.getMessage());
+//			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+//		} catch (IdNotFoundException e) {
+//			logger.error("Delete quotation failed. IdNotFoundException: ", e.getMessage());
+//			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
+//		} catch (DataNotFoundException e) {
+//			logger.error("Delete quotation failed. DataNotFoundException: ", e.getMessage());
+//			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
+//		} catch (Exception e) {
+//			logger.error("Delete quotation failed. Exception: ", e);
+//			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+//		}
+//
+//	}
+
 	@ApiOperation(value = "Search a quotation by id")
 	@GetMapping("/quotation/{id}")
 	public ResponseEntity<Quotation> getQuotation(@PathVariable Long id) {
 		logger.info("Getting quotation by id: " + id);
-		Quotation quotation = quotationService.getQuotation(id);
-		return ResponseEntity.status(HttpStatus.OK).body(quotation);
+		Map<String, String> quoObj = new HashMap<>();
+		try {
+			Quotation quotation = null;
+			quoObj.put("id", String.valueOf(id));
+			List<Quotation> quoList;
+
+			quoList = quotationService.searchQuotation(quoObj);
+			if (quoList.size() > 0) {
+				quotation = quoList.get(0);
+			}
+			return ResponseEntity.status(HttpStatus.OK).body(quotation);
+		} catch (NegativeIdException e) {
+			logger.error("Search vendor failed. NegativeIdException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+		} catch (Exception e) {
+			logger.error("Search vendor failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+		}
+
 	}
 }

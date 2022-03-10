@@ -36,16 +36,16 @@ public class CommitteeService {
 	@Autowired
 	private CommitteeActivityRepository committeeActivityRepository;
 
-//	public Committee getCommittee(Long id) {
-//		logger.info("Getting committee by id: " + id);
-//		Optional<Committee> ovn = committeeRepository.findById(id);
-//		if (ovn.isPresent()) {
-//			logger.info("Committee: " + ovn.get().toString());
-//			return ovn.get();
-//		}
-//		logger.warn("Committee not found");
-//		return null;
-//	}
+	public Committee getCommittee(Long id) {
+		logger.info("Getting committee by id: " + id);
+		Optional<Committee> ovn = committeeRepository.findById(id);
+		if (ovn.isPresent()) {
+			logger.info("Committee: " + ovn.get().toString());
+			return ovn.get();
+		}
+		logger.warn("Committee not found");
+		return null;
+	}
 
 	@Transactional
 	public Committee addCommittee(ObjectNode obj)  {
