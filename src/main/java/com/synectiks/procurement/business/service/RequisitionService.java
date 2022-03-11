@@ -413,10 +413,11 @@ public class RequisitionService {
 			if (reqLineItem.getId() == null) {
 				reqLineItem.setCreatedBy(requisition.getCreatedBy());
 				reqLineItem.setCreatedOn(requisition.getCreatedOn());
+				reqLineItem.setStatus(requisition.getStatus());
 			}
 			reqLineItem.setUpdatedBy(requisition.getUpdatedBy());
 			reqLineItem.setUpdatedOn(requisition.getUpdatedOn());
-			reqLineItem.setStatus(requisition.getStatus());
+			
 			reqLineItem = requisitionLineItemService.addRequisitionLineItem(reqLineItem);
 			requisition.getRequisitionLineItemLists().add(reqLineItem);
 		}
