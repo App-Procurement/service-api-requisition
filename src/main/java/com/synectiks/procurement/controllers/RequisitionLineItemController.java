@@ -47,11 +47,11 @@ public class RequisitionLineItemController {
 	@PostMapping("/requisitionLineItem")
 	public ResponseEntity<RequisitionLineItem> addRequisitionLineItem(
 			@RequestParam(name = "requisitionLineItemFile", required = false) MultipartFile[] requisitionLineItemFile,
-			@RequestBody ObjectNode objNode) throws IOException {
+			@RequestParam String obj) throws IOException {
 		logger.info("Request to add a requisition line item");
 		RequisitionLineItem requisitionLineItem;
 		try {
-			String obj = objNode.toPrettyString();
+			/* String obj = objNode.toPrettyString(); */
 			requisitionLineItem = requisitionLineItemService.addRequisitionLineItem(obj, requisitionLineItemFile);
 			return ResponseEntity.status(HttpStatus.OK).body(requisitionLineItem);
 		} catch (IOException e) {
@@ -67,10 +67,10 @@ public class RequisitionLineItemController {
 	@PutMapping("/requisitionLineItem")
 	public ResponseEntity<RequisitionLineItem> updateRequisitionLineItem(
 			@RequestParam(name = "requisitionLineItemFile", required = false) MultipartFile[] requisitionLineItemFile,
-			@RequestBody ObjectNode objNode) throws IOException {
+			@RequestParam String obj) throws IOException {
 		logger.info("Request to update a requsition");
 		try {
-			String obj = objNode.toPrettyString();
+//			String obj = objNode.toPrettyString();
 			RequisitionLineItem requisitionLineItem = requisitionLineItemService.updateRequisitionLineItem(obj,
 					requisitionLineItemFile);
 			return ResponseEntity.status(HttpStatus.OK).body(requisitionLineItem);

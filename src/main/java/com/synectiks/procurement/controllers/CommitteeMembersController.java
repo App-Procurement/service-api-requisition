@@ -45,13 +45,13 @@ public class CommitteeMembersController {
 
 	@ApiOperation(value = "Create a new committee members")
 	@RequestMapping(value = "/committeeMembers", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<CommitteeMember> addCommitteeMembers(@RequestBody ObjectNode objNode,
+	public ResponseEntity<CommitteeMember> addCommitteeMembers(@RequestParam String obj,
 			@RequestParam(name = "file", required = false) MultipartFile file) {
 		logger.info("Request to add new committee member");
 		CommitteeMember committeeMember = null;
 
 		try {
-			String obj = objNode.toPrettyString();
+//			String obj = objNode.toPrettyString();
 			committeeMember = committeeMembersService.addCommitteeMember(obj, file);
 			return ResponseEntity.status(HttpStatus.OK).body(committeeMember);
 		} catch (JSONException e) {
@@ -69,12 +69,12 @@ public class CommitteeMembersController {
 
 	@ApiOperation(value = "Update an existing committee members")
 	@RequestMapping(value = "/committeeMembers", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<CommitteeMember> updateCommitteeMembers(@RequestBody ObjectNode objNode,
+	public ResponseEntity<CommitteeMember> updateCommitteeMembers(@RequestBody String obj,
 			@RequestParam(name = "file", required = false) MultipartFile file) throws IOException, JSONException {
 		logger.info("Request to upde committee members");
 		CommitteeMember committeeMember = null;
 		try {
-			String obj = objNode.toPrettyString();
+//			String obj = objNode.toPrettyString();
 			committeeMember = committeeMembersService.updateCommitteeMembers(obj, file);
 			return ResponseEntity.status(HttpStatus.OK).body(committeeMember);
 		} catch (JSONException e) {

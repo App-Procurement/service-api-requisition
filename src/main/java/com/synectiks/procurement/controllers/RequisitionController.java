@@ -50,12 +50,12 @@ public class RequisitionController {
 	@ApiOperation(value = "Create a new requisition")
 	@RequestMapping(value = "/requisitions", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Requisition> addRequisition(
+			@RequestParam String obj,
 			@RequestParam(name = "requisitionFile", required = false) MultipartFile[] requisitionFile,
-			@RequestParam(name = "requisitionLineItemFile", required = false) MultipartFile[] requisitionLineItemFile,
-			@RequestBody ObjectNode objNode) {
+			@RequestParam(name = "requisitionLineItemFile", required = false) MultipartFile[] requisitionLineItemFile)
+			 {
 		logger.info("Request to add a requsition");
 		try {
-			String obj = objNode.toPrettyString();
 			Requisition requisition = requisitionService.addRequisition(requisitionFile, requisitionLineItemFile, obj);
 			return ResponseEntity.status(HttpStatus.OK).body(requisition);
 		} catch (JSONException e) {
@@ -79,10 +79,10 @@ public class RequisitionController {
 	public ResponseEntity<Requisition> updateRequisition(
 			@RequestParam(name = "requisitionFile", required = false) MultipartFile[] requisitionFile,
 			@RequestParam(name = "requisitionLineItemFile", required = false) MultipartFile[] requisitionLineItemFile,
-			@RequestBody ObjectNode objNode) {
+			@RequestParam String obj) {
 		logger.info("Request to update a requsition");
 		try {
-			String obj = objNode.toPrettyString();
+//			String obj = objNode.toPrettyString();
 			Requisition requisition = requisitionService.updateRequisition(requisitionFile, requisitionLineItemFile,
 					obj);
 			return ResponseEntity.status(HttpStatus.OK).body(requisition);
