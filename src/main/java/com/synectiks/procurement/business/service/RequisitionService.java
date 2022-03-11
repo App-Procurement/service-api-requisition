@@ -416,6 +416,7 @@ public class RequisitionService {
 			}
 			reqLineItem.setUpdatedBy(requisition.getUpdatedBy());
 			reqLineItem.setUpdatedOn(requisition.getUpdatedOn());
+			reqLineItem.setStatus(requisition.getStatus());
 			reqLineItem = requisitionLineItemService.addRequisitionLineItem(reqLineItem);
 			requisition.getRequisitionLineItemLists().add(reqLineItem);
 		}

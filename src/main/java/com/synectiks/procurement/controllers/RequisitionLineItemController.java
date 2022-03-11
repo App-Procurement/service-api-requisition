@@ -47,7 +47,7 @@ public class RequisitionLineItemController {
 	@PostMapping("/requisitionLineItem")
 	public ResponseEntity<RequisitionLineItem> addRequisitionLineItem(
 			@RequestParam(name = "requisitionLineItemFile", required = false) MultipartFile[] requisitionLineItemFile,
-			@RequestParam String obj) throws IOException {
+			@RequestParam("obj") String obj) throws IOException {
 		logger.info("Request to add a requisition line item");
 		RequisitionLineItem requisitionLineItem;
 		try {
@@ -67,7 +67,7 @@ public class RequisitionLineItemController {
 	@PutMapping("/requisitionLineItem")
 	public ResponseEntity<RequisitionLineItem> updateRequisitionLineItem(
 			@RequestParam(name = "requisitionLineItemFile", required = false) MultipartFile[] requisitionLineItemFile,
-			@RequestParam String obj) throws IOException {
+			@RequestParam("obj") String obj) throws IOException {
 		logger.info("Request to update a requsition");
 		try {
 //			String obj = objNode.toPrettyString();

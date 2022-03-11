@@ -45,7 +45,7 @@ public class CommitteeMembersController {
 
 	@ApiOperation(value = "Create a new committee members")
 	@RequestMapping(value = "/committeeMembers", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<CommitteeMember> addCommitteeMembers(@RequestParam String obj,
+	public ResponseEntity<CommitteeMember> addCommitteeMembers(@RequestParam("obj") String obj,
 			@RequestParam(name = "file", required = false) MultipartFile file) {
 		logger.info("Request to add new committee member");
 		CommitteeMember committeeMember = null;
@@ -69,7 +69,7 @@ public class CommitteeMembersController {
 
 	@ApiOperation(value = "Update an existing committee members")
 	@RequestMapping(value = "/committeeMembers", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<CommitteeMember> updateCommitteeMembers(@RequestBody String obj,
+	public ResponseEntity<CommitteeMember> updateCommitteeMembers(@RequestParam("obj") String obj,
 			@RequestParam(name = "file", required = false) MultipartFile file) throws IOException, JSONException {
 		logger.info("Request to upde committee members");
 		CommitteeMember committeeMember = null;
