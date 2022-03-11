@@ -211,6 +211,9 @@ public class RequisitionLineItemService {
 		if (obj.get("status") != null) {
 			requisitionLineItem.setStatus(obj.get("status").asText());
 		}
+		else {
+			requisitionLineItem.setStatus(Constants.STATUS_DEACTIVE);
+		}
 
 		if (obj.get("progressStage") != null) {
 			requisitionLineItem.setProgressStage(obj.get("progressStage").asText());
