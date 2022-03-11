@@ -1,8 +1,8 @@
 package com.synectiks.procurement.domain;
 
-
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -23,142 +23,145 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Table(name = "committee_member")
 public class CommitteeMember implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-    @SequenceGenerator(name = "sequenceGenerator")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+	@SequenceGenerator(name = "sequenceGenerator")
+	private Long id;
 
-    @Column(name = "name")
-    private String name;
+	@Column(name = "name")
+	private String name;
 
-    @Column(name = "company")
-    private String company;
+	@Column(name = "company")
+	private String company;
 
-    @Column(name = "department")
-    private String department;
+	@Column(name = "department")
+	private String department;
 
-    @Column(name = "phone_number")
-    private String phoneNumber;
+	@Column(name = "phone_number")
+	private String phoneNumber;
 
-    @Column(name = "email")
-    private String email;
+	@Column(name = "email")
+	private String email;
 
-    @Column(name = "designation")
-    private String designation;
+	@Column(name = "designation")
+	private String designation;
 
-    @Column(name = "created_on")
-    private Instant createdOn;
+	@Column(name = "created_on")
+	private Instant createdOn;
 
-    @Column(name = "created_by")
-    private String createdBy;
+	@Column(name = "status")
+	private String status;
 
-    @Column(name = "updated_on")
-    private Instant updatedOn;
+	@Column(name = "created_by")
+	private String createdBy;
 
-    @Column(name = "updated_by")
-    private String updatedBy;
+	@Column(name = "updated_on")
+	private Instant updatedOn;
 
-    @Transient
-    @JsonProperty
-    private List<CommitteeAndMemberAssociation> committeeList;
-    
-    @Transient
-    @JsonProperty
-    private byte[] profileImage;
-    
-    @Transient
-    @JsonProperty
-    private List<Document> documentList;
-    
-    public Long getId() {
-        return id;
-    }
+	@Column(name = "updated_by")
+	private String updatedBy;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	@Transient
+	@JsonProperty
+	private List<CommitteeAndMemberAssociation> committeeList;
 
-    public String getName() {
-        return name;
-    }
+	@Transient
+	@JsonProperty
+	private byte[] profileImage;
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	@Transient
+	@JsonProperty
+	private List<Document> documentList;
 
-    public String getCompany() {
-        return company;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setCompany(String company) {
-        this.company = company;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public String getDepartment() {
-        return department;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setDepartment(String department) {
-        this.department = department;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
+	public String getCompany() {
+		return company;
+	}
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
+	public void setCompany(String company) {
+		this.company = company;
+	}
 
-    public String getEmail() {
-        return email;
-    }
+	public String getDepartment() {
+		return department;
+	}
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+	public void setDepartment(String department) {
+		this.department = department;
+	}
 
-    public String getDesignation() {
-        return designation;
-    }
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
 
-    public void setDesignation(String designation) {
-        this.designation = designation;
-    }
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
 
-    public Instant getCreatedOn() {
-        return createdOn;
-    }
+	public String getEmail() {
+		return email;
+	}
 
-    public void setCreatedOn(Instant createdOn) {
-        this.createdOn = createdOn;
-    }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-    public String getCreatedBy() {
-        return createdBy;
-    }
+	public String getDesignation() {
+		return designation;
+	}
 
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
+	public void setDesignation(String designation) {
+		this.designation = designation;
+	}
 
-    public Instant getUpdatedOn() {
-        return updatedOn;
-    }
+	public Instant getCreatedOn() {
+		return createdOn;
+	}
 
-    public void setUpdatedOn(Instant updatedOn) {
-        this.updatedOn = updatedOn;
-    }
+	public void setCreatedOn(Instant createdOn) {
+		this.createdOn = createdOn;
+	}
 
-    public String getUpdatedBy() {
-        return updatedBy;
-    }
+	public String getCreatedBy() {
+		return createdBy;
+	}
 
-    public void setUpdatedBy(String updatedBy) {
-        this.updatedBy = updatedBy;
-    }
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public Instant getUpdatedOn() {
+		return updatedOn;
+	}
+
+	public void setUpdatedOn(Instant updatedOn) {
+		this.updatedOn = updatedOn;
+	}
+
+	public String getUpdatedBy() {
+		return updatedBy;
+	}
+
+	public void setUpdatedBy(String updatedBy) {
+		this.updatedBy = updatedBy;
+	}
 
 	public byte[] getProfileImage() {
 		return profileImage;
@@ -183,38 +186,38 @@ public class CommitteeMember implements Serializable {
 	public void setDocumentList(List<Document> documentList) {
 		this.documentList = documentList;
 	}
-	
-	@Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof CommitteeMember)) {
-            return false;
-        }
-        return id != null && id.equals(((CommitteeMember) o).id);
-    }
 
-    @Override
-    public int hashCode() {
-        return 31;
-    }
-    
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
 	@Override
-    public String toString() {
-        return "CommitteeMember{" +
-            "id=" + getId() +
-            ", name='" + getName() + "'" +
-            ", company='" + getCompany() + "'" +
-            ", department='" + getDepartment() + "'" +
-            ", phoneNumber='" + getPhoneNumber() + "'" +
-            ", email='" + getEmail() + "'" +
-            ", designation='" + getDesignation() + "'" +
-            ", createdOn='" + getCreatedOn() + "'" +
-            ", createdBy='" + getCreatedBy() + "'" +
-            ", updatedOn='" + getUpdatedOn() + "'" +
-            ", updatedBy='" + getUpdatedBy() + "'" +
-            "}";
-    }
-	
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof CommitteeMember)) {
+			return false;
+		}
+		return id != null && id.equals(((CommitteeMember) o).id);
+	}
+
+	@Override
+	public int hashCode() {
+		return 31;
+	}
+
+	@Override
+	public String toString() {
+		return "CommitteeMember [id=" + id + ", name=" + name + ", company=" + company + ", department=" + department
+				+ ", phoneNumber=" + phoneNumber + ", email=" + email + ", designation=" + designation + ", createdOn="
+				+ createdOn + ", status=" + status + ", createdBy=" + createdBy + ", updatedOn=" + updatedOn
+				+ ", updatedBy=" + updatedBy + ", committeeList=" + committeeList + ", profileImage="
+				+ Arrays.toString(profileImage) + ", documentList=" + documentList + "]";
+	}
+
 }

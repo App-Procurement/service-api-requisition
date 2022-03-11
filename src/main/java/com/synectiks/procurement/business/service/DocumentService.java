@@ -132,6 +132,9 @@ public class DocumentService {
 		if (obj.get("fileName") != null) {
 			document.setFileName(obj.get("fileName").asText());
 		}
+		if (obj.get("status") != null) {
+			document.setStatus(obj.get("status").asText());
+		}
 		if (obj.get("fileType") != null) {
 			document.setFileType(obj.get("fileType").asText());
 		}
@@ -148,15 +151,23 @@ public class DocumentService {
 			document.setSourceOfOrigin(obj.get("sourceOfOrigin").asText());
 		}
 
-		Optional<Contact> oc = contactRepository.findById(Long.parseLong(obj.get("contactId").asText()));
-		if (!oc.isPresent()) {
-			document.setContact(oc.get());
+		if (obj.get("contactId") != null) {
+			Optional<Contact> oc = contactRepository.findById(Long.parseLong(obj.get("contactId").asText()));
+
+			if (!oc.isPresent()) {
+				document.setContact(oc.get());
+			}
 		}
 
-		Optional<RequisitionLineItem> orli = requisitionLineItemRepository
-				.findById(Long.parseLong(obj.get("requisitionLineItemId").asText()));
-		if (orli.isPresent()) {
-			document.setRequisitionLineItem(orli.get());
+		if (obj.get("requisitionLineItemId") != null) {
+			
+			Optional<RequisitionLineItem> orli = requisitionLineItemRepository
+					.findById(Long.parseLong(obj.get("requisitionLineItemId").asText()));
+
+			if (orli.isPresent()) {
+				document.setRequisitionLineItem(orli.get());
+			}
+			
 		}
 
 		if (obj.get("user") != null) {
@@ -265,7 +276,7 @@ public class DocumentService {
 	}
 
 	public boolean deleteDocument(Long id) throws IdNotFoundException, NegativeIdException, DataNotFoundException {
-		
+
 		if (id == null) {
 			logger.error("Document could not be deleted. Document id not found");
 			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);

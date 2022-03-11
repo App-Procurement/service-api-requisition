@@ -27,6 +27,9 @@
             <column name="file_size" type="bigint">
                 <constraints nullable="true" />
             </column>
+            <column name="status" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
             <column name="storage_location" type="varchar(255)" remarks="LOCAL or S3 or AZURE">
                 <constraints nullable="true" />
             </column>

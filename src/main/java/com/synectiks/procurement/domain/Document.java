@@ -33,6 +33,11 @@ public class Document implements Serializable {
 
     @Column(name = "file_size")
     private Long fileSize;
+    
+    
+    @Column(name = "status")
+    private String status;
+    
 
     /**
      * LOCAL or S3 or AZURE
@@ -128,7 +133,15 @@ public class Document implements Serializable {
         return fileType;
     }
 
-    public Document fileType(String fileType) {
+    public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public Document fileType(String fileType) {
         this.fileType = fileType;
         return this;
     }
@@ -363,26 +376,16 @@ public class Document implements Serializable {
     }
 
     // prettier-ignore
-    @Override
-    public String toString() {
-        return "Document{" +
-            "id=" + getId() +
-            ", fileName='" + getFileName() + "'" +
-            ", fileType='" + getFileType() + "'" +
-            ", fileExt='" + getFileExt() + "'" +
-            ", fileSize=" + getFileSize() +
-            ", storageLocation='" + getStorageLocation() + "'" +
-            ", localFilePath='" + getLocalFilePath() + "'" +
-            ", s3Bucket='" + gets3Bucket() + "'" +
-            ", s3Url='" + gets3Url() + "'" +
-            ", azureUrl='" + getAzureUrl() + "'" +
-            ", sourceOfOrigin='" + getSourceOfOrigin() + "'" +
-            ", sourceId=" + getSourceId() +
-            ", identifier='" + getIdentifier() + "'" +
-            ", createdOn='" + getCreatedOn() + "'" +
-            ", createdBy='" + getCreatedBy() + "'" +
-            ", updatedOn='" + getUpdatedOn() + "'" +
-            ", updatedBy='" + getUpdatedBy() + "'" +
-            "}";
-    }
+	@Override
+	public String toString() {
+		return "Document [id=" + id + ", fileName=" + fileName + ", fileType=" + fileType + ", fileExt=" + fileExt
+				+ ", fileSize=" + fileSize + ", status=" + status + ", storageLocation=" + storageLocation
+				+ ", localFilePath=" + localFilePath + ", s3Bucket=" + s3Bucket + ", s3Url=" + s3Url + ", azureUrl="
+				+ azureUrl + ", sourceOfOrigin=" + sourceOfOrigin + ", sourceId=" + sourceId + ", identifier="
+				+ identifier + ", createdOn=" + createdOn + ", createdBy=" + createdBy + ", updatedOn=" + updatedOn
+				+ ", updatedBy=" + updatedBy + ", requisitionLineItem=" + requisitionLineItem + ", contact=" + contact
+				+ "]";
+	}
+
+  
 }

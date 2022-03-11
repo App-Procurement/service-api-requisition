@@ -11,6 +11,7 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,9 +21,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.business.service.CommitteeMembersService;
 import com.synectiks.procurement.config.BusinessValidationCodes;
+import com.synectiks.procurement.config.Constants;
 import com.synectiks.procurement.domain.CommitteeMember;
 import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
 import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
@@ -112,6 +115,36 @@ public class CommitteeMembersController {
 			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
 		} catch (Exception e) {
 			logger.error("Update committee members failed. Exception: ", e);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+		}
+	}
+
+	@ApiOperation(value = "Delete a committeeMembers")
+	@DeleteMapping("/committeeMembers/{id}")
+	public ResponseEntity<Boolean> deletecommitteeMembers(@PathVariable Long id) {
+		logger.info("Request to delete a committeeMembers");
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode obj = mapper.createObjectNode();
+		obj.put("id", id);
+		obj.put("status", Constants.STATUS_DEACTIVE);
+		try {
+			CommitteeMember bu = committeeMembersService.updateCommitteeMembers(obj.toString(),null);
+			if (Constants.STATUS_DEACTIVE.equalsIgnoreCase(bu.getStatus())) {
+				return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
+			} else {
+				return ResponseEntity.status(BusinessValidationCodes.DELETION_FAILED.value()).body(Boolean.FALSE);
+			}
+		} catch (NegativeIdException e) {
+			logger.error("Delete committeeMembers failed. NegativeIdException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+		} catch (IdNotFoundException e) {
+			logger.error("Delete committeeMembers failed. IdNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
+		} catch (DataNotFoundException e) {
+			logger.error("Delete committeeMembers failed. DataNotFoundException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
+		} catch (Exception e) {
+			logger.error("Delete committeeMembers failed. Exception: ", e);
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
 	}

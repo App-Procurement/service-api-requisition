@@ -3,6 +3,7 @@ package com.synectiks.procurement.controllers;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +18,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.business.service.DocumentService;
 import com.synectiks.procurement.config.BusinessValidationCodes;
+import com.synectiks.procurement.config.Constants;
 import com.synectiks.procurement.domain.Document;
 import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
 import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
 import com.synectiks.procurement.web.rest.errors.NegativeIdException;
+
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/api")
@@ -81,18 +87,25 @@ public class DocumentController {
 		}
 	}
 
+	
+	
+	@ApiOperation(value = "Delete a document")
 	@DeleteMapping("/document/{id}")
-	public ResponseEntity<Boolean> deleteDocument(@PathVariable Long id) {
-
+	public ResponseEntity<Boolean> deletedocument(@PathVariable Long id) {
 		logger.info("Request to delete a document");
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode obj = mapper.createObjectNode();
+		obj.put("id", id);
+		obj.put("status", Constants.STATUS_DEACTIVE);
 		try {
-			boolean delDocument = documentService.deleteDocument(id);
-			if (delDocument) {
+		Document bu=documentService.updateDocument(obj);
+			if(Constants.STATUS_DEACTIVE.equalsIgnoreCase(bu.getStatus())){
 				return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
-			} else {
+			}else {
 				return ResponseEntity.status(BusinessValidationCodes.DELETION_FAILED.value()).body(Boolean.FALSE);
 			}
-		} catch (NegativeIdException e) {
+		} 
+		catch (NegativeIdException e) {
 			logger.error("Delete document failed. NegativeIdException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
 		} catch (IdNotFoundException e) {
@@ -101,11 +114,43 @@ public class DocumentController {
 		} catch (DataNotFoundException e) {
 			logger.error("Delete document failed. DataNotFoundException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			logger.error("Delete document failed. Exception: ", e);
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
+			
 	}
+	
+	
+	
+	
+	
+//	@DeleteMapping("/document/{id}")
+//	public ResponseEntity<Boolean> deleteDocument(@PathVariable Long id) {
+//
+//		logger.info("Request to delete a document");
+//		try {
+//			boolean delDocument = documentService.deleteDocument(id);
+//			if (delDocument) {
+//				return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
+//			} else {
+//				return ResponseEntity.status(BusinessValidationCodes.DELETION_FAILED.value()).body(Boolean.FALSE);
+//			}
+//		} catch (NegativeIdException e) {
+//			logger.error("Delete document failed. NegativeIdException: ", e.getMessage());
+//			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+//		} catch (IdNotFoundException e) {
+//			logger.error("Delete document failed. IdNotFoundException: ", e.getMessage());
+//			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
+//		} catch (DataNotFoundException e) {
+//			logger.error("Delete document failed. DataNotFoundException: ", e.getMessage());
+//			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
+//		} catch (Exception e) {
+//			logger.error("Delete document failed. Exception: ", e);
+//			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+//		}
+//	}
 
 	@GetMapping("/document/{id}")
 	public ResponseEntity<Document> getDepartment(@PathVariable Long id) {

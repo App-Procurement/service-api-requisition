@@ -19,16 +19,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.business.service.CurrencyService;
 import com.synectiks.procurement.config.BusinessValidationCodes;
-import com.synectiks.procurement.domain.Committee;
+import com.synectiks.procurement.config.Constants;
 import com.synectiks.procurement.domain.Currency;
 import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
 import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
 import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
-import io.github.jhipster.web.util.HeaderUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -96,19 +96,29 @@ public class CurrencyController {
 		}
 			
 	}
-
+	
+	
+	
+	
+	
+	
 	@ApiOperation(value = "Delete a currency")
 	@DeleteMapping("/currency/{id}")
-	public ResponseEntity<Boolean> deleteCurrency(@PathVariable Long id) {
+	public ResponseEntity<Boolean> deletecurrency(@PathVariable Long id) {
+		logger.info("Request to delete a currency");
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode obj = mapper.createObjectNode();
+		obj.put("id", id);
+		obj.put("status", Constants.STATUS_DEACTIVE);
 		try {
-			boolean dlCurrency = currencyService.deleteCurrency(id);
-			if (dlCurrency) {
-				return ResponseEntity.status(HttpStatus.OK).body(dlCurrency);
-			} else {
-				return ResponseEntity.status(HttpStatus.OK).body(dlCurrency);
-			} 
-			
-		} catch (NegativeIdException e) {
+		Currency bu=currencyService.updateCurrency(obj);
+			if(Constants.STATUS_DEACTIVE.equalsIgnoreCase(bu.getStatus())){
+				return ResponseEntity.status(HttpStatus.OK).body(Boolean.TRUE);
+			}else {
+				return ResponseEntity.status(BusinessValidationCodes.DELETION_FAILED.value()).body(Boolean.FALSE);
+			}
+		} 
+		catch (NegativeIdException e) {
 			logger.error("Delete currency failed. NegativeIdException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
 		} catch (IdNotFoundException e) {
@@ -117,11 +127,44 @@ public class CurrencyController {
 		} catch (DataNotFoundException e) {
 			logger.error("Delete currency failed. DataNotFoundException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			logger.error("Delete currency failed. Exception: ", e);
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}
+			
 	}
+	
+	
+	
+	
+	
+//
+//	@ApiOperation(value = "Delete a currency")
+//	@DeleteMapping("/currency/{id}")
+//	public ResponseEntity<Boolean> deleteCurrency(@PathVariable Long id) {
+//		try {
+//			boolean dlCurrency = currencyService.deleteCurrency(id);
+//			if (dlCurrency) {
+//				return ResponseEntity.status(HttpStatus.OK).body(dlCurrency);
+//			} else {
+//				return ResponseEntity.status(HttpStatus.OK).body(dlCurrency);
+//			} 
+//			
+//		} catch (NegativeIdException e) {
+//			logger.error("Delete currency failed. NegativeIdException: ", e.getMessage());
+//			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
+//		} catch (IdNotFoundException e) {
+//			logger.error("Delete currency failed. IdNotFoundException: ", e.getMessage());
+//			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
+//		} catch (DataNotFoundException e) {
+//			logger.error("Delete currency failed. DataNotFoundException: ", e.getMessage());
+//			return ResponseEntity.status(BusinessValidationCodes.DATA_NOT_FOUND.value()).body(null);
+//		} catch (Exception e) {
+//			logger.error("Delete currency failed. Exception: ", e);
+//			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
+//		}
+//	}
 
 	@ApiOperation(value = "Search a currency by id")
 	@GetMapping("/currency/{id}")

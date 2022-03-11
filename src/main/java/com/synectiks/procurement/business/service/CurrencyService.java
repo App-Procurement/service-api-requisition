@@ -81,6 +81,9 @@ public class CurrencyService {
 		if (obj.get("code") != null) {
 			currency.setCode(obj.get("code").asText());
 		}
+		if (obj.get("status") != null) {
+			currency.setStatus(obj.get("status").asText());
+		}
 		if (obj.get("countryName") != null) {
 			currency.setCountryName(obj.get("countryName").asText());
 		}

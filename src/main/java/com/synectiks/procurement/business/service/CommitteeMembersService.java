@@ -254,6 +254,9 @@ public class CommitteeMembersService {
 		if (json.get("name") != null) {
 			committeeMember.setName(json.get("name").asText());
 		}
+		if (json.get("status") != null) {
+			committeeMember.setStatus(json.get("status").asText());
+		}
 		if (json.get("company") != null) {
 			committeeMember.setCompany(json.get("company").asText());
 		}

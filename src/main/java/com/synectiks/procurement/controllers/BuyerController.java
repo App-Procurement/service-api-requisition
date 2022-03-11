@@ -117,10 +117,10 @@ public class BuyerController {
 			}
 		} 
 		catch (NegativeIdException e) {
-			logger.error("Update buyer failed. NegativeIdException: ", e.getMessage());
+			logger.error("Delete buyer failed. NegativeIdException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
 		} catch (IdNotFoundException e) {
-			logger.error("Update buyer failed. IdNotFoundException: ", e.getMessage());
+			logger.error("Delete buyer failed. IdNotFoundException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
 		} catch (DataNotFoundException e) {
 			logger.error("Delete buyer failed. DataNotFoundException: ", e.getMessage());

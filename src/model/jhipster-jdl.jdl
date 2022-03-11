@@ -3,6 +3,7 @@ entity Document {
     fileType String
     fileExt String
 	fileSize Long
+	status String
     storageLocation String /** LOCAL or S3 or AZURE */
 	localFilePath String
     s3Bucket String /** S3 bucket name. image file stored on aws s3 bucket */
@@ -34,12 +35,14 @@ entity DataFile {
 
 entity Department {
 	name String
+	status String
 }
 
 entity Currency {
 	code String
     countryName String
     countryCode String
+    status String
 }
 
 entity Requisition {
@@ -236,6 +239,7 @@ entity Contact {
     lastName String
     phoneNumber String
     email String
+    status String
     isActive String
     inviteStatus String
     invitationLink String
@@ -325,6 +329,7 @@ entity CommitteeMember {
     department String
     phoneNumber String
     email String
+    status String
     designation String
     createdOn Instant
     createdBy String

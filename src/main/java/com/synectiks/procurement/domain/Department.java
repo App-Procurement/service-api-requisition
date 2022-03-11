@@ -21,6 +21,11 @@ public class Department implements Serializable {
 
     @Column(name = "name")
     private String name;
+    
+    
+    @Column(name = "status")
+    private String status;
+    
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
@@ -61,12 +66,19 @@ public class Department implements Serializable {
         return 31;
     }
 
-    // prettier-ignore
-    @Override
-    public String toString() {
-        return "Department{" +
-            "id=" + getId() +
-            ", name='" + getName() + "'" +
-            "}";
-    }
+    public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	@Override
+	public String toString() {
+		return "Department [id=" + id + ", name=" + name + ", status=" + status + "]";
+	}
+
+	// prettier-ignore
+    
 }

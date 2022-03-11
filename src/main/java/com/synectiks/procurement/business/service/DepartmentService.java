@@ -38,7 +38,7 @@ public class DepartmentService {
 		return null;
 	}
 
-	public Department addDepartment(ObjectNode obj){
+	public Department addDepartment(ObjectNode obj) {
 		Department department = new Department();
 		if (obj.get("name") != null) {
 			department.setName(obj.get("name").asText());
@@ -48,25 +48,33 @@ public class DepartmentService {
 		return department;
 	}
 
-	public Department updateDepartment(ObjectNode obj) throws IdNotFoundException, NegativeIdException, DataNotFoundException {
-		
-		if(org.apache.commons.lang3.StringUtils.isBlank(obj.get("id").asText())) {
+	public Department updateDepartment(ObjectNode obj)
+			throws IdNotFoundException, NegativeIdException, DataNotFoundException {
+
+		if (org.apache.commons.lang3.StringUtils.isBlank(obj.get("id").asText())) {
 			logger.error("Department could not be updated. Department id not found");
 			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
 		}
-		
+
 		Long dep = Long.parseLong(obj.get("id").asText());
-		if( dep < 0) {
+		if (dep < 0) {
 			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
 		}
-		
+
 		Optional<Department> ur = departmentRepository.findById(Long.parseLong(obj.get("id").asText()));
 		if (!ur.isPresent()) {
 			logger.warn("Department id not found");
 			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
 		}
+
 		Department department = ur.get();
-		department.setName(obj.get("name").asText());
+		if (obj.get("status") != null) {
+			department.setStatus(obj.get("status").asText());
+		}
+
+		if (obj.get("name") != null) {
+			department.setName(obj.get("name").asText());
+		}
 		department = departmentRepository.save(department);
 		logger.info("Updating department completed");
 		return department;
@@ -76,10 +84,10 @@ public class DepartmentService {
 		Department department = new Department();
 		boolean isFilter = false;
 		if (requestObj.get("id") != null) {
-	 
-			Long depId =Long.parseLong(requestObj.get("id"));
-			
-			if(depId < 0) {
+
+			Long depId = Long.parseLong(requestObj.get("id"));
+
+			if (depId < 0) {
 				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
 			}
 			department.setId(Long.parseLong(requestObj.get("id")));
@@ -117,7 +125,7 @@ public class DepartmentService {
 			logger.error("Department could not be deleted. Department not found");
 			throw new DataNotFoundException(Constants.DATA_NOT_FOUND_ERROR_MESSAGE);
 		}
-		
+
 		departmentRepository.deleteById(id);
 		return true;
 	}

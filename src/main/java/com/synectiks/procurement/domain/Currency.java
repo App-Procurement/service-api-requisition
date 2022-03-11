@@ -24,7 +24,10 @@ public class Currency implements Serializable {
 
     @Column(name = "country_name")
     private String countryName;
-
+    
+    @Column(name = "status")
+    private String status;
+    
     @Column(name = "country_code")
     private String countryCode;
 
@@ -94,13 +97,18 @@ public class Currency implements Serializable {
     }
 
     // prettier-ignore
-    @Override
-    public String toString() {
-        return "Currency{" +
-            "id=" + getId() +
-            ", code='" + getCode() + "'" +
-            ", countryName='" + getCountryName() + "'" +
-            ", countryCode='" + getCountryCode() + "'" +
-            "}";
-    }
+ 
+	public String getStatus() {
+		return status;
+	}
+
+	@Override
+	public String toString() {
+		return "Currency [id=" + id + ", code=" + code + ", countryName=" + countryName + ", status=" + status
+				+ ", countryCode=" + countryCode + "]";
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
 }

@@ -30,6 +30,9 @@
             <column name="email" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+            <column name="status" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
             <column name="designation" type="varchar(255)">
                 <constraints nullable="true" />
             </column>

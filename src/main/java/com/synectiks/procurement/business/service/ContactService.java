@@ -127,6 +127,9 @@ public class ContactService {
 		if (obj.get("email") != null) {
 			contact.setEmail(obj.get("email").asText());
 		}
+		if (obj.get("status") != null) {
+			contact.setStatus(obj.get("status").asText());
+		}
 
 		if (obj.get("isActive") != null) {
 			contact.setIsActive(obj.get("isActive").asText());

@@ -57,6 +57,8 @@ public class Contact implements Serializable {
     @Column(name = "invite_status")
     private String inviteStatus;
     
+    @Column(name = "status")
+    private String status;
     
 
     @Column(name = "invitation_link")
@@ -111,7 +113,15 @@ public class Contact implements Serializable {
         return firstName;
     }
 
-    public Contact firstName(String firstName) {
+    public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public Contact firstName(String firstName) {
         this.firstName = firstName;
         return this;
     }
@@ -371,31 +381,20 @@ public class Contact implements Serializable {
     }
 
     // prettier-ignore
-    @Override
-    public String toString() {
-        return "Contact{" +
-            "id=" + getId() +
-            ", firstName='" + getFirstName() + "'" +
-            ", middleName='" + getMiddleName() + "'" +
-            ", lastName='" + getLastName() + "'" +
-            ", phoneNumber='" + getPhoneNumber() + "'" +
-            ", email='" + getEmail() + "'" +
-            ", isActive='" + getIsActive() + "'" +
-            ", inviteStatus='" + getInviteStatus() + "'" +
-            ", invitationLink='" + getInvitationLink() + "'" +
-            ", inviteSentOn='" + getInviteSentOn() + "'" +
-            ", designation='" + getDesignation() + "'" +
-            ", jobType='" + getJobType() + "'" +
-            ", createdOn='" + getCreatedOn() + "'" +
-            ", createdBy='" + getCreatedBy() + "'" +
-            ", updatedOn='" + getUpdatedOn() + "'" +
-            ", updatedBy='" + getUpdatedBy() + "'" +
-            ", notes='" + getNotes() + "'" +
-            "}";
-    }
-
+  
 	public List<ContactActivity> getActivityList() {
 		return activityList;
+	}
+
+	@Override
+	public String toString() {
+		return "Contact [id=" + id + ", firstName=" + firstName + ", middleName=" + middleName + ", lastName="
+				+ lastName + ", phoneNumber=" + phoneNumber + ", email=" + email + ", isActive=" + isActive
+				+ ", inviteStatus=" + inviteStatus + ", status=" + status + ", invitationLink=" + invitationLink
+				+ ", inviteSentOn=" + inviteSentOn + ", designation=" + designation + ", jobType=" + jobType
+				+ ", createdOn=" + createdOn + ", createdBy=" + createdBy + ", updatedOn=" + updatedOn + ", updatedBy="
+				+ updatedBy + ", notes=" + notes + ", owner=" + owner + ", documentLists=" + documentLists
+				+ ", activityList=" + activityList + "]";
 	}
 
 	public void setActivityList(List<ContactActivity> activityList) {
