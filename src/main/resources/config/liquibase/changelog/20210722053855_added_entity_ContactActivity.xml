@@ -63,6 +63,9 @@
             <column name="notes" type="varchar(5000)">
                 <constraints nullable="true" />
             </column>
+              <column name="status" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
             <column name="contact_id" type="bigint">
                 <constraints nullable="true" />
             </column>

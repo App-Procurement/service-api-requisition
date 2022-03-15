@@ -43,6 +43,9 @@ public class DepartmentService {
 		if (obj.get("name") != null) {
 			department.setName(obj.get("name").asText());
 		}
+		if (obj.get("status") != null) {
+			department.setStatus(obj.get("status").asText());
+		}
 		department = departmentRepository.save(department);
 		logger.info("Department added successfully. " + department.toString());
 		return department;

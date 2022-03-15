@@ -50,6 +50,9 @@ public class CurrencyService {
 		if (obj.get("countryCode") != null) {
 			currency.setCountryCode(obj.get("countryCode").asText());
 		}
+		if (obj.get("status") != null) {
+			currency.setStatus(obj.get("status").asText());
+		}
 //		if (obj.get("symbolFilePath") != null) {
 //			currency.setSymbolFilePath(obj.get("symbolFilePath").asText());
 //		}
@@ -100,12 +103,13 @@ public class CurrencyService {
 
 	public List<Currency> searchCurrency(Map<String, String> requestObj) throws NegativeIdException {
 		Currency currency = new Currency();
-		Long currencyId =Long.parseLong(requestObj.get("id"));
-		if(currencyId < 0) {
-			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
-		}
+	
 		boolean isFilter = false;
 		if (requestObj.get("id") != null) {
+			Long currencyId =Long.parseLong(requestObj.get("id"));
+			if(currencyId < 0) {
+				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+			}
 			currency.setId(Long.parseLong(requestObj.get("id")));
 			isFilter = true;
 		}

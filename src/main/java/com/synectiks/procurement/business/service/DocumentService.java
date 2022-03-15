@@ -43,7 +43,7 @@ public class DocumentService {
 		logger.info("Getting document by id: " + id);
 		Optional<Document> oin = documentRepository.findById(id);
 		if (oin.isPresent()) {
-			logger.info("Document: " + oin.get().toString());
+			logger.info("Document: " + oin.get());
 			return oin.get();
 		}
 		logger.warn("Document not found");
@@ -96,8 +96,6 @@ public class DocumentService {
 		document.setUpdatedOn(now);
 
 		document = documentRepository.save(document);
-
-		logger.info("Document added successfully: " + document.toString());
 
 		return document;
 	}

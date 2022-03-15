@@ -54,7 +54,12 @@ public class ContactService {
 		if (obj.get("email") != null) {
 			contact.setEmail(obj.get("email").asText());
 		}
-
+		if (obj.get("status") != null) {
+			contact.setStatus(obj.get("status").asText());
+		}
+		if (obj.get("designation") != null) {
+			contact.setDesignation(obj.get("designation").asText());
+		}
 		if (obj.get("isActive") != null) {
 			contact.setIsActive(obj.get("isActive").asText());
 		}
@@ -130,7 +135,9 @@ public class ContactService {
 		if (obj.get("status") != null) {
 			contact.setStatus(obj.get("status").asText());
 		}
-
+		if (obj.get("designation") != null) {
+			contact.setDesignation(obj.get("designation").asText());
+		}
 		if (obj.get("isActive") != null) {
 			contact.setIsActive(obj.get("isActive").asText());
 		}
@@ -191,6 +198,10 @@ public class ContactService {
 		}
 		if (requestObj.get("email") != null) {
 			contact.setEmail(requestObj.get("email"));
+			isFilter = true;
+		}
+		if (requestObj.get("designation") != null) {
+			contact.setDesignation(requestObj.get("designation"));
 			isFilter = true;
 		}
 		if (requestObj.get("isActive") != null) {

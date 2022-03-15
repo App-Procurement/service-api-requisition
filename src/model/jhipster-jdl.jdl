@@ -262,6 +262,7 @@ entity ContactActivity {
     phoneNumber String
     email String
     isActive String
+    status String
     inviteStatus String
     invitationLink String
     inviteSentOn Instant

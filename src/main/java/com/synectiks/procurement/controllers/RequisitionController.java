@@ -50,9 +50,10 @@ public class RequisitionController {
 	@ApiOperation(value = "Create a new requisition")
 	@RequestMapping(value = "/requisitions", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Requisition> addRequisition(
-			@RequestParam("obj") String obj,
+			
 			@RequestParam(name = "requisitionFile", required = false) MultipartFile[] requisitionFile,
-			@RequestParam(name = "requisitionLineItemFile", required = false) MultipartFile[] requisitionLineItemFile)
+			@RequestParam(name = "requisitionLineItemFile", required = false) MultipartFile[] requisitionLineItemFile,
+			@RequestParam("obj") String obj)
 			 {
 		logger.info("Request to add a requsition");
 		try {
