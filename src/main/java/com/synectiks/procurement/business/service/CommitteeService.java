@@ -48,7 +48,7 @@ public class CommitteeService {
 	}
 
 	@Transactional
-	public Committee addCommittee(ObjectNode obj)  {
+	public Committee addCommittee(ObjectNode obj) {
 		Committee committee = new Committee();
 
 		if (obj.get("name") != null) {
@@ -86,24 +86,25 @@ public class CommitteeService {
 			committeeActivity.setCommitteeId(committee.getId());
 			committeeActivity = committeeActivityRepository.save(committeeActivity);
 			logger.info("Committee activity added successfully");
-		} 
+		}
 		logger.info("Committee added successfully" + committee.toString());
 		return committee;
 	}
 
 	@Transactional
-	public Committee updateCommittee(ObjectNode obj) throws IdNotFoundException, NegativeIdException, DataNotFoundException  {
-		
-		if(org.apache.commons.lang3.StringUtils.isBlank(obj.get("id").asText())) {
+	public Committee updateCommittee(ObjectNode obj)
+			throws IdNotFoundException, NegativeIdException, DataNotFoundException {
+
+		if (org.apache.commons.lang3.StringUtils.isBlank(obj.get("id").asText())) {
 			logger.error("Committee could not be updated. Committee id not found");
 			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
 		}
-		
+
 		Long comm = Long.parseLong(obj.get("id").asText());
-		if( comm < 0) {
+		if (comm < 0) {
 			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
 		}
-		
+
 		Optional<Committee> ur = committeeRepository.findById(Long.parseLong(obj.get("id").asText()));
 		if (!ur.isPresent()) {
 			logger.info("Committee id not found");
@@ -148,16 +149,13 @@ public class CommitteeService {
 	public List<Committee> searchCommittee(Map<String, String> requestObj) throws NegativeIdException {
 		logger.info("Request to get committee on given filter criteria");
 		Committee committee = new Committee();
-		
-		
-		
-		
+
 		boolean isFilter = false;
 		if (requestObj.get("id") != null) {
-			
-			Long committeeId =Long.parseLong(requestObj.get("id"));
-			
-			if(committeeId < 0) {
+
+			Long committeeId = Long.parseLong(requestObj.get("id"));
+
+			if (committeeId < 0) {
 				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
 			}
 			committee.setId(Long.parseLong(requestObj.get("id")));
@@ -207,10 +205,13 @@ public class CommitteeService {
 		}
 
 		for (Committee cmt : list) {
-			CommitteeActivity ca = new CommitteeActivity();
-			ca.setCommitteeId(cmt.getId());
-			List<CommitteeActivity> caList = committeeActivityRepository.findAll(Example.of(ca));
-			cmt.setActivityList(caList);
+			if (cmt.getId() != null) {
+
+				CommitteeActivity ca = new CommitteeActivity();
+				ca.setCommitteeId(cmt.getId());
+				List<CommitteeActivity> caList = committeeActivityRepository.findAll(Example.of(ca));
+				cmt.setActivityList(caList);
+			}
 		}
 
 		logger.info("Committee search completed. Total records: " + list.size());
