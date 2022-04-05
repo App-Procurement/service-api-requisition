@@ -81,7 +81,7 @@ public class RequisitionService {
 
 //	@Autowired
 //	private RequisitionLineItemService requisitionLineItemService;
-	
+
 	@Autowired
 	private DepartmentService departmentService;
 
@@ -111,13 +111,13 @@ public class RequisitionService {
 
 	@Autowired
 	private RequisitionLineItemActivityService requisitionLineItemActivityService;
-	
+
 	@Autowired
 	private RequisitionLineItemRepository requisitionLineItemRepository;
-	
+
 	@Autowired
-    private XformAwsS3Config xformAwsS3Config;
-	
+	private XformAwsS3Config xformAwsS3Config;
+
 	public Requisition getRequisition(Long id) {
 		logger.info("Getting requisition by id: " + id);
 		Optional<Requisition> ovn = requisitionRepository.findById(id);
@@ -231,18 +231,18 @@ public class RequisitionService {
 		requisition = requisitionRepository.save(requisition);
 		logger.info("Requisition added successfully");
 
-		if(extraBudgetoryFile != null) {
+		if (extraBudgetoryFile != null) {
 			saveFile(extraBudgetoryFile, requisition, now, Constants.IDENTIFIER_REQUISITION_EXTRA_BUDGETORY_FILE);
 		}
-		
+
 		saveRequisitionActivity(requisition);
 		saveRequisitionLineItem(requisition, liteItemList);
-		if(requisitionLineItemFile != null) {
+		if (requisitionLineItemFile != null) {
 			saveFile(requisitionLineItemFile, requisition, now, Constants.IDENTIFIER_REQUISITION_LINE_ITEM_FILE);
 		}
-		
+
 		logger.info("Requisition added successfully");
-		
+
 		return requisition;
 	}
 
@@ -273,22 +273,23 @@ public class RequisitionService {
 
 	@Transactional
 	public Requisition updateRequisition(MultipartFile[] extraBudgetoryFile, MultipartFile[] requisitionLineItemFile,
-			String obj) throws IdNotFoundException, NegativeIdException, DataNotFoundException, IOException, JSONException {
+			String obj)
+			throws IdNotFoundException, NegativeIdException, DataNotFoundException, IOException, JSONException {
 		logger.info("Update requisition");
-		
+
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode json = (ObjectNode) mapper.readTree(obj);
-		
-		if(org.apache.commons.lang3.StringUtils.isBlank(json.get("id").asText())) {
+
+		if (org.apache.commons.lang3.StringUtils.isBlank(json.get("id").asText())) {
 			logger.error("Requisition could not be updated. Requisition id not found");
 			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
 		}
 
 		Long reqId = Long.parseLong(json.get("id").asText());
-		if(reqId < 0) {
+		if (reqId < 0) {
 			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
 		}
-		
+
 		Optional<Requisition> orq = requisitionRepository.findById(Long.parseLong(json.get("id").asText()));
 		if (!orq.isPresent()) {
 			logger.error("Requisition could not be updated. Requisition not found");
@@ -386,16 +387,15 @@ public class RequisitionService {
 
 			HashMap<String, String> mp = new HashMap<String, String>();
 			mp.put("requisitionId", json.get("id").asText());
-			List<RequisitionLineItem> list = requisitionLineItemService
-					.searchRequisitionLineItem(mp);
+			List<RequisitionLineItem> list = requisitionLineItemService.searchRequisitionLineItem(mp);
 
 			for (RequisitionLineItem requisitionLineItem : list) {
 				requisitionLineItem.setStatus(Constants.STATUS_DEACTIVE);
-				
+
 //				requisitionLineItem = requisitionLineItemRepository.save(requisitionLineItem);
-				
+
 				requisitionLineItemService.addRequisitionLineItem(requisitionLineItem);
-				
+
 			}
 		}
 		requisition = requisitionRepository.save(requisition);
@@ -417,7 +417,7 @@ public class RequisitionService {
 			}
 			reqLineItem.setUpdatedBy(requisition.getUpdatedBy());
 			reqLineItem.setUpdatedOn(requisition.getUpdatedOn());
-			
+
 			reqLineItem = requisitionLineItemService.addRequisitionLineItem(reqLineItem);
 			requisition.getRequisitionLineItemLists().add(reqLineItem);
 		}
@@ -427,73 +427,72 @@ public class RequisitionService {
 	private List<RequisitionLineItem> getLineItemFromJson(String obj) throws JSONException {
 		List<RequisitionLineItem> liteItemList = new ArrayList<>();
 		JSONObject jsonObj = new JSONObject(obj);
-		
-		
-		if(jsonObj.has("requisitionLineItemLists")) {
+
+		if (jsonObj.has("requisitionLineItemLists")) {
 			JSONArray reqLineItemArray = jsonObj.getJSONArray("requisitionLineItemLists");
 //			if (reqLineItemArray != null && reqLineItemArray.length() > 0) {
-				for (int j = 0; j < reqLineItemArray.length(); j++) {
-					JSONObject json = reqLineItemArray.getJSONObject(j);
-					RequisitionLineItem reqLineItem = new RequisitionLineItem();
+			for (int j = 0; j < reqLineItemArray.length(); j++) {
+				JSONObject json = reqLineItemArray.getJSONObject(j);
+				RequisitionLineItem reqLineItem = new RequisitionLineItem();
 
-					if (!json.isNull("id")) {
+				if (!json.isNull("id")) {
+					try {
+						String q = (String) json.get("id");
+						reqLineItem = this.requisitionLineItemService.getRequisitionLineItem(Long.parseLong(q));
+					} catch (Exception e) {
 						try {
-							String q = (String) json.get("id");
-							reqLineItem = this.requisitionLineItemService.getRequisitionLineItem(Long.parseLong(q));
-						} catch (Exception e) {
-							try {
-								Integer q = (Integer) json.get("id");
-								reqLineItem = this.requisitionLineItemService.getRequisitionLineItem(q.longValue());
-							} catch (Exception ee) {
-								logger.error("Cannot read line item id. Exception ", e);
-								throw ee;
-							}
+							Integer q = (Integer) json.get("id");
+							reqLineItem = this.requisitionLineItemService.getRequisitionLineItem(q.longValue());
+						} catch (Exception ee) {
+							logger.error("Cannot read line item id. Exception ", e);
+							throw ee;
 						}
 					}
-
-					if (!json.isNull("orderQuantity")) {
-						try {
-							String q = (String) json.get("orderQuantity");
-							reqLineItem.setOrderQuantity(Integer.parseInt(q));
-						} catch (Exception e) {
-							try {
-								Integer q = (Integer) json.get("orderQuantity");
-								reqLineItem.setOrderQuantity(q);
-							} catch (Exception ee) {
-								logger.error("Cannot read quantity. Exception ", e);
-								throw ee;
-							}
-						}
-					}
-
-					if (!json.isNull("itemDescription")) {
-						reqLineItem.setItemDescription((String) json.get("itemDescription"));
-					}
-					if (!json.isNull("ratePerItem")) {
-						try {
-							String q = (String) json.get("ratePerItem");
-							reqLineItem.setRatePerItem(Integer.parseInt(q));
-						} catch (Exception e) {
-							try {
-								Integer q = (Integer) json.get("ratePerItem");
-								reqLineItem.setRatePerItem(q);
-							} catch (Exception ee) {
-								logger.error("Cannot read per item rate. Exception ", e);
-								throw ee;
-							}
-						}
-					}
-
-					if (reqLineItem.getOrderQuantity() != null && reqLineItem.getRatePerItem() != null) {
-						int amt = reqLineItem.getOrderQuantity() * reqLineItem.getRatePerItem();
-						reqLineItem.setPrice(amt);
-					}
-
-					liteItemList.add(reqLineItem);
 				}
+
+				if (!json.isNull("orderQuantity")) {
+					try {
+						String q = (String) json.get("orderQuantity");
+						reqLineItem.setOrderQuantity(Integer.parseInt(q));
+					} catch (Exception e) {
+						try {
+							Integer q = (Integer) json.get("orderQuantity");
+							reqLineItem.setOrderQuantity(q);
+						} catch (Exception ee) {
+							logger.error("Cannot read quantity. Exception ", e);
+							throw ee;
+						}
+					}
+				}
+
+				if (!json.isNull("itemDescription")) {
+					reqLineItem.setItemDescription((String) json.get("itemDescription"));
+				}
+				if (!json.isNull("ratePerItem")) {
+					try {
+						String q = (String) json.get("ratePerItem");
+						reqLineItem.setRatePerItem(Integer.parseInt(q));
+					} catch (Exception e) {
+						try {
+							Integer q = (Integer) json.get("ratePerItem");
+							reqLineItem.setRatePerItem(q);
+						} catch (Exception ee) {
+							logger.error("Cannot read per item rate. Exception ", e);
+							throw ee;
+						}
+					}
+				}
+
+				if (reqLineItem.getOrderQuantity() != null && reqLineItem.getRatePerItem() != null) {
+					int amt = reqLineItem.getOrderQuantity() * reqLineItem.getRatePerItem();
+					reqLineItem.setPrice(amt);
+				}
+
+				liteItemList.add(reqLineItem);
+			}
 //			}
 		}
-		
+
 		return liteItemList;
 	}
 
@@ -557,8 +556,9 @@ public class RequisitionService {
 		return lineItemList;
 
 	}
-	
-	public List<RequisitionLineItem> getLineItemFromFileForUpdate(MultipartFile[] requisitionLineItemFile) throws IOException {
+
+	public List<RequisitionLineItem> getLineItemFromFileForUpdate(MultipartFile[] requisitionLineItemFile)
+			throws IOException {
 		List<RequisitionLineItem> lineItemList = new ArrayList<>();
 		if (requisitionLineItemFile == null) {
 			return lineItemList;
@@ -595,23 +595,21 @@ public class RequisitionService {
 						item.setRatePerItem(Integer.parseInt(row.getCell(2).getStringCellValue()));
 					}
 				}
-				
+
 				try {
 					if (row.getCell(3) != null) {
-						item.setId( (long) row.getCell(3).getNumericCellValue());
+						item.setId((long) row.getCell(3).getNumericCellValue());
 					}
 				} catch (Exception e) {
 					if (row.getCell(3) != null) {
-						item.setId(Long.parseLong( row.getCell(3).getStringCellValue()));
+						item.setId(Long.parseLong(row.getCell(3).getStringCellValue()));
 					}
 				}
-
 
 				if (item.getOrderQuantity() != null && item.getRatePerItem() != null) {
 					int amt = item.getOrderQuantity() * item.getRatePerItem();
 					item.setPrice(amt);
 				}
-
 
 				lineItemList.add(item);
 
@@ -638,22 +636,19 @@ public class RequisitionService {
 		return requisitionActivity;
 	}
 
-	public List<Requisition> searchRequisition(Map<String, String> requestObj) throws NegativeIdException, ParseException {
+	public List<Requisition> searchRequisition(Map<String, String> requestObj)
+			throws NegativeIdException, ParseException {
 		logger.info("Request to search requisition on given filter criteria");
 		Requisition requisition = new Requisition();
 
-	
-		
 		boolean isFilter = false;
 		if (!org.apache.commons.lang3.StringUtils.isBlank(requestObj.get("id"))) {
-			
-			
-			Long reqId =Long.parseLong(requestObj.get("id"));
-			if(reqId < 0) {
+
+			Long reqId = Long.parseLong(requestObj.get("id"));
+			if (reqId < 0) {
 				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
 			}
-			
-			
+
 			requisition.setId(Long.parseLong(requestObj.get("id")));
 			isFilter = true;
 		}
@@ -744,7 +739,8 @@ public class RequisitionService {
 		List<Requisition> list = null;
 		if (isFilter) {
 			list = this.requisitionRepository.findAll(Example.of(requisition), Sort.by(Direction.DESC, "id"));
-		} else {list = this.requisitionRepository.findAll(Sort.by(Direction.DESC, "id"));
+		} else {
+			list = this.requisitionRepository.findAll(Sort.by(Direction.DESC, "id"));
 		}
 
 		Date fromDate = null;
@@ -831,7 +827,8 @@ public class RequisitionService {
 	}
 
 	@Transactional
-	public List<VendorRequisitionBucket> sendRequisitionToVendor(List<ObjectNode> list) throws IdNotFoundException, NegativeIdException, DataNotFoundException  {
+	public List<VendorRequisitionBucket> sendRequisitionToVendor(List<ObjectNode> list)
+			throws IdNotFoundException, NegativeIdException, DataNotFoundException {
 		List<VendorRequisitionBucket> vReqList = new ArrayList<>();
 		for (ObjectNode obj : list) {
 			VendorRequisitionBucket bucket = new VendorRequisitionBucket();
@@ -989,19 +986,19 @@ public class RequisitionService {
 //
 //	}
 
-	public Boolean approveRequisition(ObjectNode obj) throws IdNotFoundException, NegativeIdException{
+	public Boolean approveRequisition(ObjectNode obj) throws IdNotFoundException, NegativeIdException {
 		logger.info("Getting requisition by id: " + obj);
 
 		if (obj.get("requisitionId") == null) {
 			logger.error("Requisition could not be approved. Requisition id not found");
 			throw new IdNotFoundException(Constants.ID_NOT_FOUND_ERROR_MESSAGE);
 		}
-		
+
 		Long reqId = obj.get("requisitionId").asLong();
-		if(reqId < 0) {
+		if (reqId < 0) {
 			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
 		}
-		
+
 		Optional<Requisition> req = requisitionRepository.findById(obj.get("requisitionId").asLong());
 		if (!req.isPresent()) {
 			logger.error("Requision not found. Cannot approve requisition.");
@@ -1016,24 +1013,22 @@ public class RequisitionService {
 		return Boolean.TRUE;
 
 	}
- 
+
 	@Transactional
 	private void saveFile(MultipartFile[] files, Requisition requisition, Instant now, String identifier)
 			throws IOException, JSONException {
-		AmazonS3 s3client = AmazonS3ClientBuilder
-		  .standard()
-		  .withCredentials(new AWSStaticCredentialsProvider(xformAwsS3Config.getAwsCredentials()))
-		  .withRegion(Regions.fromName(xformAwsS3Config.getRegion()))
-		  .build();
+		AmazonS3 s3client = AmazonS3ClientBuilder.standard()
+				.withCredentials(new AWSStaticCredentialsProvider(xformAwsS3Config.getAwsCredentials()))
+				.withRegion(Regions.fromName(xformAwsS3Config.getRegion())).build();
 		for (MultipartFile file : files) {
-			
+
 			byte[] bytes = file.getBytes();
-			Map<String,String> nameMap = getFileName(file);
-			
-			if(!org.apache.commons.lang3.StringUtils.isBlank(Constants.IS_LOCAL_FILE_STORE)
+			Map<String, String> nameMap = getFileName(file);
+
+			if (!org.apache.commons.lang3.StringUtils.isBlank(Constants.IS_LOCAL_FILE_STORE)
 					&& "Y".equalsIgnoreCase(Constants.IS_LOCAL_FILE_STORE)) {
 				File localFile = new File(Constants.LOCAL_FILE_PATH);
-				logger.info("Saving requistion file to local: "+getFileName(file));
+				logger.info("Saving requistion file to local: " + getFileName(file));
 				if (!localFile.exists()) {
 					localFile.mkdirs();
 				}
@@ -1042,14 +1037,16 @@ public class RequisitionService {
 				Files.write(path, bytes);
 				saveDocument(requisition, absolutePath, null, null, now, file.getSize(), nameMap, identifier);
 			}
-			
-			if(!org.apache.commons.lang3.StringUtils.isBlank(Constants.IS_AWS_FIEL_STORE)
+
+			if (!org.apache.commons.lang3.StringUtils.isBlank(Constants.IS_AWS_FIEL_STORE)
 					&& "Y".equalsIgnoreCase(Constants.IS_AWS_FIEL_STORE)) {
-				logger.info("Saving requistion file to AWS: "+getFileName(file));
-				String awsFileUrl = uploadFileToAwsS3(s3client, Constants.REQUISITION_BUCKET, Constants.REQUISITION_DIRECTORY,  nameMap, file);
-				saveDocument(requisition, null, Constants.REQUISITION_BUCKET, awsFileUrl, now, file.getSize(), nameMap, identifier);
+				logger.info("Saving requistion file to AWS: " + getFileName(file));
+				String awsFileUrl = uploadFileToAwsS3(s3client, Constants.REQUISITION_BUCKET,
+						Constants.REQUISITION_DIRECTORY, nameMap, file);
+				saveDocument(requisition, null, Constants.REQUISITION_BUCKET, awsFileUrl, now, file.getSize(), nameMap,
+						identifier);
 			}
-				
+
 //				requisition.setExtraBudgetoryFile(bytes);
 //				logger.info("Extra budgetory file saved successfully");
 		}
@@ -1057,21 +1054,21 @@ public class RequisitionService {
 	}
 
 	@Transactional
-	private void saveDocument(Requisition requisition, String localFilePath, String s3Bucket, String s3Url, Instant now, long fileSize, Map<String, String> nameMap,
-			String identifier) {
+	private void saveDocument(Requisition requisition, String localFilePath, String s3Bucket, String s3Url, Instant now,
+			long fileSize, Map<String, String> nameMap, String identifier) {
 		Document document = new Document();
 		document.setFileName(nameMap.get("fileName"));
 		document.setFileExt(nameMap.get("ext"));
 		document.setFileType(nameMap.get("ext").toUpperCase());
 		document.setFileSize(fileSize);
-		
-		if(!org.apache.commons.lang3.StringUtils.isBlank(localFilePath)) {
+
+		if (!org.apache.commons.lang3.StringUtils.isBlank(localFilePath)) {
 			document.setLocalFilePath(localFilePath);
 		}
-		if(!org.apache.commons.lang3.StringUtils.isBlank(s3Bucket)) {
+		if (!org.apache.commons.lang3.StringUtils.isBlank(s3Bucket)) {
 			document.sets3Bucket(s3Bucket);
 		}
-		if(!org.apache.commons.lang3.StringUtils.isBlank(s3Url)) {
+		if (!org.apache.commons.lang3.StringUtils.isBlank(s3Url)) {
 			document.sets3Url(s3Url);
 		}
 //		document.setStorageLocation(Constants.FILE_STORAGE_LOCATION_LOCAL);
@@ -1087,7 +1084,8 @@ public class RequisitionService {
 	}
 
 	@Transactional
-	public void deleteRequisition(Long requisitionId) throws NegativeIdException, IdNotFoundException, DataNotFoundException {
+	public void deleteRequisition(Long requisitionId)
+			throws NegativeIdException, IdNotFoundException, DataNotFoundException {
 		logger.info("Deleting requisition");
 		Requisition req = getRequisition(requisitionId);
 		Instant now = Instant.now();
@@ -1116,9 +1114,8 @@ public class RequisitionService {
 		logger.info(" Requisition deleted successfully");
 	}
 
-	
 	private Map<String, String> getFileName(MultipartFile file) {
-		Map<String,String> nameMap = new HashMap<>();
+		Map<String, String> nameMap = new HashMap<>();
 		String orgFileName = StringUtils.cleanPath(file.getOriginalFilename());
 		String ext = "";
 		if (orgFileName.lastIndexOf(".") != -1) {
@@ -1131,24 +1128,22 @@ public class RequisitionService {
 		fileName = fileName.toLowerCase().replaceAll(" ", "-") + "_" + System.currentTimeMillis() + "." + ext;
 		nameMap.put("fileName", fileName);
 		nameMap.put("ext", ext);
-		return nameMap; 
+		return nameMap;
 	}
-	
-	private String uploadFileToAwsS3(AmazonS3 s3client, String bucket, String directory, Map<String,String> nameMap, MultipartFile file) throws IOException{
+
+	private String uploadFileToAwsS3(AmazonS3 s3client, String bucket, String directory, Map<String, String> nameMap,
+			MultipartFile file) throws IOException {
 		byte[] buffer = new byte[file.getInputStream().available()];
 		file.getInputStream().read(buffer);
 		File tempFile = File.createTempFile(nameMap.get("fileName"), "");
 		try (OutputStream outStream = new FileOutputStream(tempFile)) {
-		    outStream.write(buffer);
+			outStream.write(buffer);
 		}
-		String key = directory+"/"+nameMap.get("fileName");
-		PutObjectResult res = s3client.putObject(
-				bucket, 
-				key,
-				tempFile);
+		String key = directory + "/" + nameMap.get("fileName");
+		PutObjectResult res = s3client.putObject(bucket, key, tempFile);
 		tempFile.deleteOnExit();
-		
+
 		return s3client.getUrl(bucket, key).toExternalForm();
-		
+
 	}
 }

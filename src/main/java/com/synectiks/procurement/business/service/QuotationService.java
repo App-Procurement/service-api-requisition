@@ -226,13 +226,15 @@ public class QuotationService {
 		logger.info("Searching quotations");
 		Quotation quotation = new Quotation();
 
-		Long reqId = Long.parseLong(requestObj.get("id"));
-		if (reqId < 0) {
-			throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
-		}
-
 		boolean isFilter = false;
 		if (requestObj.get("id") != null) {
+
+			Long reqId = Long.parseLong(requestObj.get("id"));
+
+			if (reqId < 0) {
+				throw new NegativeIdException(Constants.NEGATIVE_ID_ERROR_MESSAGE);
+			}
+
 			quotation.setId(Long.parseLong(requestObj.get("id")));
 			isFilter = true;
 		}

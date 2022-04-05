@@ -23,33 +23,37 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.synectiks.procurement.domain.Buyer;
-import com.synectiks.procurement.repository.BuyerRepository;
+import com.synectiks.procurement.domain.Contact;
+import com.synectiks.procurement.repository.ContactActivityRepository;
+import com.synectiks.procurement.repository.ContactRepository;
 import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
 import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
 import com.synectiks.procurement.web.rest.errors.NegativeIdException;
 
-@ActiveProfiles("Buyer service test")
+@ActiveProfiles("Contact service test")
 @RunWith(SpringRunner.class)
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
-public class BuyerServiceTest {
+public class ContactServiceTest {
 
 	@InjectMocks
-	BuyerService buyerService;
+	ContactService contactService;
 
 	@Autowired
-	BuyerService buyerServiceAuto;
+	ContactService contactServiceAuto;
 
 	@Mock
-	BuyerRepository buyerRepository;
+	ContactRepository contactRepository;
+	
+	@Mock
+	ContactActivityRepository car;
 
 	private ObjectMapper mapper = new ObjectMapper();
 
-	Buyer buyer = new Buyer();
+	Contact contact = new Contact();
 
 	@Test
-	public void addBuyerTest() {
+	public void addcontactTest() {
 
 		ObjectNode obj = mapper.createObjectNode();
 
@@ -58,72 +62,69 @@ public class BuyerServiceTest {
 		obj.put("lastName", "c");
 		obj.put("phoneNumber", "d");
 		obj.put("email", "e");
-		obj.put("address", "f");
-		obj.put("zipCode", "g");
 		obj.put("status", "h");
 
-		buyer = buyerServiceAuto.addBuyer(obj);
+		contact = contactServiceAuto.addContact(obj);
 
-		assertThat(buyer.getFirstName()).isEqualTo("a");
-		assertThat(buyer.getMiddleName()).isEqualTo("b");
-		assertThat(buyer.getLastName()).isEqualTo("c");
-		assertThat(buyer.getPhoneNumber()).isEqualTo("d");
-		assertThat(buyer.getEmail()).isEqualTo("e");
-		assertThat(buyer.getAddress()).isEqualTo("f");
-		assertThat(buyer.getZipCode()).isEqualTo("g");
-		assertThat(buyer.getStatus()).isEqualTo("h");
+		assertThat(contact.getFirstName()).isEqualTo("a");
+		assertThat(contact.getMiddleName()).isEqualTo("b");
+		assertThat(contact.getLastName()).isEqualTo("c");
+		assertThat(contact.getPhoneNumber()).isEqualTo("d");
+		assertThat(contact.getEmail()).isEqualTo("e");
+		assertThat(contact.getStatus()).isEqualTo("h");
 
 	}
 
 	@Test
-	public void searchBuyerTest() throws NegativeIdException {
+	public void searchcontactTest() throws NegativeIdException {
 
-		buyer.setAddress("a");
-		buyer.setEmail("b");
+		contact.setFirstName("a");
+		contact.setEmail("b");
 
-		List<Buyer> list1 = new ArrayList<>();
-		list1.add(buyer);
+		List<Contact> list1 = new ArrayList<>();
+		list1.add(contact);
 
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put("id", null);
 
-		Mockito.when(buyerRepository.findAll(Sort.by(Direction.DESC, "id"))).thenReturn(list1);
+		Mockito.when(contactRepository.findAll(Sort.by(Direction.DESC, "id"))).thenReturn(list1);
 
-		List<Buyer> list = buyerService.searchBuyer(map);
+		List<Contact> list = contactService.searchContact(map);
 
 		assertThat(list).hasSize(1);
 	}
 
 	@Test
-	public void updateBuyerTest() {
+	public void updatecontactTest() {
 
 		ObjectNode obj = mapper.createObjectNode();
 
 		obj.put("id", "1");
 		obj.put("firstName", "aa");
 		obj.put("lastName", "bb");
+
+		contact.setId(1L);
+		contact.setFirstName("a");
+		contact.setLastName("b");
+
+
+		Contact contact3 = new Contact();
+		contact3.setId(1L);
+		contact3.setFirstName("aa");
+		contact3.setLastName("bb");
+
+		Optional<Contact> contact2 = Optional.of(contact);
 		
-		buyer.setId(1L);
-		buyer.setFirstName("a");
-		buyer.setLastName("b");
-
-		Buyer buyer3 = new Buyer();
-		buyer3.setId(1L);
-		buyer3.setFirstName("aa");
-		buyer3.setLastName("bb");
-
-
-		Optional<Buyer> buyer2 = Optional.of(buyer);
-
-		Mockito.when(buyerRepository.findById(1L)).thenReturn(buyer2);
-
-		Mockito.when(buyerRepository.save(buyer)).thenReturn(buyer3);
-
-		Buyer buyer4;
+		Mockito.when(contactRepository.findById(1L)).thenReturn(contact2);
+		
+		Mockito.when(contactRepository.save(contact)).thenReturn(contact3);
+		
+		
+		Contact contact4;
 		try {
-			buyer4 = buyerService.updateBuyer(obj);
-			assertThat(buyer4.getFirstName()).isEqualTo("aa");
-			assertThat(buyer4.getLastName()).isEqualTo("bb");
+			contact4 = contactService.updateContact(obj);
+			assertThat(contact4.getFirstName()).isEqualTo("aa");
+			assertThat(contact4.getLastName()).isEqualTo("bb");
 		} catch (NegativeIdException | IdNotFoundException | DataNotFoundException e) {
 			e.printStackTrace();
 		}
