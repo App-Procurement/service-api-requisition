@@ -152,7 +152,7 @@ public class DocumentService {
 		if (obj.get("contactId") != null) {
 			Optional<Contact> oc = contactRepository.findById(Long.parseLong(obj.get("contactId").asText()));
 
-			if (!oc.isPresent()) {
+			if (oc.isPresent()) {
 				document.setContact(oc.get());
 			}
 		}

@@ -79,7 +79,7 @@ public class RulesService {
 			rules.setStatus(obj.get("status").asText());
 		}
 		if (obj.get("rule") != null) {
-			rules.setRule(obj.get("rule").toString());
+			rules.setRule(obj.get("rule").asText());
 		}
 
 		if (obj.get("user") != null) {
