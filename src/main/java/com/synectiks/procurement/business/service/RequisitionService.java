@@ -199,7 +199,7 @@ public class RequisitionService {
 		}
 
 		if (json.get("status") != null) {
-			requisition.setStatus(json.get("status").asText());
+			requisition.setStatus(json.get("status").asText().toUpperCase());
 		}
 
 		setFromatedDueDate(requisition, json);
@@ -345,7 +345,7 @@ public class RequisitionService {
 //		}
 
 		if (json.get("status") != null) {
-			requisition.setStatus(json.get("status").asText());
+			requisition.setStatus(json.get("status").asText().toUpperCase());
 		}
 
 //		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.DEFAULT_DATE_FORMAT);

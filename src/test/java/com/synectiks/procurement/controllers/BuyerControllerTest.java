@@ -1,74 +1,210 @@
 //package com.synectiks.procurement.controllers;
 //
 //import static org.assertj.core.api.Assertions.assertThat;
-//import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 //import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 //import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 //
+//import java.io.IOException;
+//import java.util.List;
+//import java.util.Optional;
+//
+//import org.junit.jupiter.api.Order;
 //import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.extension.ExtendWith;
 //import org.junit.runner.RunWith;
+//import org.mockito.Mock;
+//import org.mockito.junit.jupiter.MockitoExtension;
 //import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-//import org.springframework.boot.test.mock.mockito.MockBean;
+//import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+//import org.springframework.boot.test.context.SpringBootTest;
 //import org.springframework.http.MediaType;
+//import org.springframework.security.test.context.support.WithMockUser;
 //import org.springframework.test.context.ActiveProfiles;
-//import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+//import org.springframework.test.context.junit4.SpringRunner;
 //import org.springframework.test.web.servlet.MockMvc;
-//import org.springframework.test.web.servlet.MvcResult;
+//import org.springframework.transaction.annotation.Transactional;
 //
 //import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.fasterxml.jackson.databind.node.ObjectNode;
 //import com.synectiks.procurement.business.service.BuyerService;
+//import com.synectiks.procurement.business.service.VendorService;
+//import com.synectiks.procurement.domain.Buyer;
+//import com.synectiks.procurement.domain.Vendor;
+//import com.synectiks.procurement.repository.BuyerRepository;
+//import com.synectiks.procurement.repository.VendorRepository;
+//import com.synectiks.procurement.web.rest.TestUtil;
 //
-//import cucumber.api.java.Before;
+//@RunWith(SpringRunner.class)
+//@ExtendWith(MockitoExtension.class)
+//@SpringBootTest
+//@ActiveProfiles("Vendor controller test")
+//@AutoConfigureMockMvc
+//@WithMockUser
+//class BuyerControllerTest {
 //
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@WebMvcTest(controllers = BuyerController.class )
-//@ActiveProfiles("test")
-//public class BuyerControllerTest {
+//	@Autowired
+//	private BuyerRepository buyerRepository;
 //
 //	@Autowired
 //	private MockMvc mockMvc;
 //	
-//	@MockBean
-//	private BuyerService buyerService;
+//	@Mock
+//	BuyerService buyerService;
 //	
-//	private ObjectMapper mapper;
+//
+//	Buyer buyer = new Buyer();
 //	
-//	@Before
-//	public void setUp() {
-//		mapper=new ObjectMapper();
+//	private ObjectMapper mapper = new ObjectMapper();
+//
+//	@Test
+//	@Transactional
+//	@Order(1)
+//	public void testAddBuyer() throws IOException, Exception {
+//
+//		buyer.setFirstName("a");
+//		buyer.setMiddleName("b");
+//		buyer.setLastName("c");
+//		buyer.phoneNumber("d");
+//		buyer.setEmail("e");
+//		buyer.setAddress("f");
+//		buyer.setZipCode("g");
+//		buyer.setStatus("h");
+//
+//		int databaseSizeBeforeCreate = buyerRepository.findAll().size();
+//
+//	
+//		mockMvc.perform(post("/api/vendor").contentType(MediaType.APPLICATION_JSON)
+//				.content(TestUtil.convertObjectToJsonBytes(buyer)));
+//
+//		List<Buyer> buuyer1 = buyerRepository.findAll();
+//		assertThat(buuyer1).hasSize(databaseSizeBeforeCreate + 1);
+//		Vendor testVendor = buuyer1.get(buuyer1.size() - 1);
+//
+//		assertThat(testVendor.getFirstName()).isEqualTo("a");
+//		assertThat(testVendor.getMiddleName()).isEqualTo("b");
+//		assertThat(testVendor.getLastName()).isEqualTo("c");
+//		assertThat(testVendor.getPhoneNumber()).isEqualTo("d");
+//		assertThat(testVendor.getEmail()).isEqualTo("e");
+//		assertThat(testVendor.getAddress()).isEqualTo("f");
+//		assertThat(testVendor.getZipCode()).isEqualTo("g");
+//		assertThat(testVendor.getStatus()).isEqualTo("h");
 //	}
 //
-//  @Test
-//  public void addBuyerTest() throws Exception {
-//	  ObjectNode node=new 
-//	  String request ="";
-//      MvcResult mvcResult=mockMvc.perform(
-//    		  post("/api/buyer").contentType(MediaType.APPLICATION_JSON)
-//    		  .with(csrf())
-//    		  .content(request)
-//    		  ).andExpect(status().isOk())
-//    		  .andReturn();
-//  }
+//	@Test
+//	@Transactional
+//	@Order(2)
+//	public void testUpdateVendorController() throws IOException, Exception {
 //
-//  @Test
-//  public void deleteBuyerTest() {
-//    throw new RuntimeException("Test not implemented");
-//  }
+////	    	Id Generated Automatically using MockMvc
 //
-//  @Test
-//  public void getBuyerTest() {
-//    throw new RuntimeException("Test not implemented");
-//  }
+//		vendor.setFirstName("a");
+//		vendor.setMiddleName("b");
+//		vendor.setLastName("c");
+//		vendor.phoneNumber("d");
+//		vendor.setEmail("e");
+//		vendor.setAddress("f");
+//		vendor.setZipCode("g");
+//		vendor.setStatus("h");
 //
-//  @Test
-//  public void searchBuyerTest() {
-//    throw new RuntimeException("Test not implemented");
-//  }
+//		vendorRepository.saveAndFlush(vendor);
 //
-//  @Test
-//  public void updateBuyerTest() {
-//    throw new RuntimeException("Test not implemented");
-//  }
+//		// Initialize the database
+//
+//		int databaseSizeBeforeUpdate = vendorRepository.findAll().size();
+//
+//		// Update the vendor
+//
+//		Vendor updatedVendor = vendorRepository.findById(vendor.getId()).get();
+//		// Disconnect from session so that the updates on updatedVendor are not directly
+//		// saved in db
+//
+//		updatedVendor.setFirstName("mohit");
+//		updatedVendor.setMiddleName("Kumar");
+//		updatedVendor.setLastName("Sharma");
+//		updatedVendor.phoneNumber("1234567890");
+//		updatedVendor.setEmail("mohitksharma@gmail.com");
+//		updatedVendor.setAddress("m.s.b ka rasta jhori bazar,jaipur");
+//		updatedVendor.setZipCode("302003");
+//		updatedVendor.setStatus("Active");
+//
+//		mockMvc.perform(put("/api/vendor").contentType(MediaType.APPLICATION_JSON)
+//				.content(TestUtil.convertObjectToJsonBytes(updatedVendor))).andExpect(status().isOk());
+//
+//		// Validate the Vendor in the database
+//		List<Vendor> vendorList = vendorRepository.findAll();
+//		assertThat(vendorList).hasSize(databaseSizeBeforeUpdate);
+//		Vendor testVendor = vendorList.get(vendorList.size() - 1);
+//		assertThat(testVendor.getFirstName()).isEqualTo("mohit");
+//		assertThat(testVendor.getMiddleName()).isEqualTo("Kumar");
+//		assertThat(testVendor.getLastName()).isEqualTo("Sharma");
+//		assertThat(testVendor.getPhoneNumber()).isEqualTo("1234567890");
+//		mailto:assertThat(testVendor.getEmail()).isEqualTo("mohitksharma@gmail.com");
+//		assertThat(testVendor.getAddress()).isEqualTo("m.s.b ka rasta jhori bazar,jaipur");
+//		assertThat(testVendor.getZipCode()).isEqualTo("302003");
+//		assertThat(testVendor.getStatus()).isEqualTo("Active");
+//	}
+//	
+//	
+//
+//
+//	@Test
+//	@Transactional
+//	@Order(3)
+//	public void deleteVendor() throws Exception {
+//
+////	    	Id Generated Automatically using MockMvc
+//
+//		vendor.setFirstName("mohit");
+//		vendor.setMiddleName("Kumar");
+//		vendor.setLastName("Sharma");
+//		vendor.phoneNumber("1234567890");
+//		mailto:vendor.setEmail("mohitksharma@gmail.com");
+//		vendor.setAddress("m.s.b ka rasta jhori bazar,jaipur");
+//		vendor.setZipCode("302003");
+//		vendor.setStatus("Active");
+//
+//		vendorRepository.saveAndFlush(vendor);
+//
+//		// Deactivate the vendor
+//
+//		mockMvc.perform(delete("/api/vendor/{id}", vendor.getId()).accept(MediaType.APPLICATION_JSON))
+//				.andExpect(status().isOk());
+//
+//		// Validate the database contains one less item
+//		Optional<Vendor> vendor1 = vendorRepository.findById(vendor.getId());
+//		assertThat(vendor1.get().getStatus()).isEqualTo("DEACTIVE");
+//
+//	}
+//	
+//	
+////	@Test
+////	@Transactional
+////	@Order(3)
+////	public void testSearchVendorController() throws IOException, Exception {
+////
+//////	    	Id Generated Automatically using MockMvc
+////
+////		vendor.setFirstName("a");
+////		vendor.setMiddleName("b");
+////		vendor.setLastName("c");
+////		vendor.phoneNumber("d");
+////		vendor.setEmail("e");
+////		vendor.setAddress("f");
+////		vendor.setZipCode("g");
+////		vendor.setStatus("h");
+////
+////		vendorRepository.saveAndFlush(vendor);
+////
+////		// Initialize the database
+////
+////		int databaseSizeBeforeUpdate = vendorRepository.findAll().size();
+////
+////		// Search the vendor
+////
+////	
+////	}
+////	
+//	
+//
 //}
