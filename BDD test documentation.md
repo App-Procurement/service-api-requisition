@@ -149,5 +149,67 @@ It has configuration of feature file and Step Definition file and it runs the te
 
 ```
 
+#### can run by following image
+
+![runner image](runner_click.png)
 
 
+
+
+## Similerly requisition update, search, approve delete test are created. scenerio for them are as follow-
+
+### Search requisition Test
+
+```
+Scenario: search requisition Test
+
+	Given user is going on procurment login page1
+	Then click on submit1
+	Then click on manage requisition
+	And user select for search
+	Then click on search
+
+```
+
+###  Update requisition Test
+
+```
+Scenario: update requisition Test
+
+	Given user is going on procurment login page2
+	Then click on submit2
+	Then click on manage requisition2
+	And user select for search2
+	Then click on search2
+	Then click on edit
+	And user fill all input fields2
+	Then click on add new item2
+	And fill all item input values and click on save2
+	Then click on send2
+```
+
+### Approve requisition Test
+
+```
+Scenario: approve requisition Test
+
+	Given user is going on procurment login page3
+	Then click on submit3
+	Then click on requisition tracker
+	And click on approve
+	Then click on yes
+```
+
+###  Delete requisition Test
+
+```
+Scenario: delete requisition Test
+
+	Given user is going on procurment login page4
+	Then click on submit4
+	Then click on manage requisition4
+	And user select for search4
+	Then click on search4
+	And click on delete
+	Then click on yes4
+```
