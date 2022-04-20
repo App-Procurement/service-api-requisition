@@ -62,7 +62,7 @@ class VendorControllerTest {
 		vendor.setFirstName("a");
 		vendor.setMiddleName("b");
 		vendor.setLastName("c");
-		vendor.phoneNumber("d");
+		vendor.setPhoneNumber("d");
 		vendor.setEmail("e");
 		vendor.setAddress("f");
 		vendor.setZipCode("g");
@@ -98,7 +98,7 @@ class VendorControllerTest {
 		vendor.setFirstName("a");
 		vendor.setMiddleName("b");
 		vendor.setLastName("c");
-		vendor.phoneNumber("d");
+		vendor.setPhoneNumber("d");
 		vendor.setEmail("e");
 		vendor.setAddress("f");
 		vendor.setZipCode("g");
@@ -119,7 +119,7 @@ class VendorControllerTest {
 		updatedVendor.setFirstName("mohit");
 		updatedVendor.setMiddleName("Kumar");
 		updatedVendor.setLastName("Sharma");
-		updatedVendor.phoneNumber("1234567890");
+		updatedVendor.setPhoneNumber("1234567890");
 		updatedVendor.setEmail("mohitksharma@gmail.com");
 		updatedVendor.setAddress("m.s.b ka rasta jhori bazar,jaipur");
 		updatedVendor.setZipCode("302003");
@@ -155,7 +155,7 @@ class VendorControllerTest {
 		vendor.setFirstName("mohit");
 		vendor.setMiddleName("Kumar");
 		vendor.setLastName("Sharma");
-		vendor.phoneNumber("1234567890");
+		vendor.setPhoneNumber("1234567890");
 		mailto:vendor.setEmail("mohitksharma@gmail.com");
 		vendor.setAddress("m.s.b ka rasta jhori bazar,jaipur");
 		vendor.setZipCode("302003");
