@@ -31,6 +31,7 @@ public class Stepdefinition {
 	@Then("^click on new requisition$")
 	public void click_on_new_requisition() throws Throwable {
 		driver1.findElement(By.xpath("//a[@href='/postlogin/newrequisition']")).click();
+		driver1.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 	}
 
 	@And("^user fill all input fields$")
@@ -70,15 +71,4 @@ public class Stepdefinition {
 	}
 
 }
-
-
-
-
-
-
-
-
-
-
-
 

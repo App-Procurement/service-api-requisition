@@ -46,10 +46,10 @@ public class InvoiceServiceTest {
 
 	@Mock
 	InvoiceRepository invoiceRepository;
-	
+
 	@Mock
-	InvoiceActivityRepository invoiceActivityRepository; 
-	
+	InvoiceActivityRepository invoiceActivityRepository;
+
 	@Mock
 	private QuotationRepository quotationRepository;
 
@@ -61,7 +61,7 @@ public class InvoiceServiceTest {
 	Invoice invoice = new Invoice();
 
 	@Test
-	public void addinvoiceTest() {
+	public void addInvoiceTest() {
 
 		ObjectNode obj = mapper.createObjectNode();
 
@@ -74,8 +74,7 @@ public class InvoiceServiceTest {
 		obj.put("notes", "g");
 		obj.put("documentId", "1");
 		obj.put("quotationId", "1");
-		
-	
+
 		invoice = invoiceServiceAuto.addInvoice(obj);
 
 		assertThat(invoice.getInvoiceNo()).isEqualTo("a");
@@ -89,7 +88,7 @@ public class InvoiceServiceTest {
 	}
 
 	@Test
-	public void searchinvoiceTest() throws NegativeIdException {
+	public void searchInvoiceTest() throws NegativeIdException {
 
 		invoice.invoiceNo("a");
 		invoice.setModeOfPayment("b");
@@ -105,35 +104,34 @@ public class InvoiceServiceTest {
 		List<Invoice> list = invoiceService.searchinvoice(map);
 
 		assertThat(list).hasSize(1);
-		
-		for (Invoice e : list) {	
+
+		for (Invoice e : list) {
 			assertThat(e.getInvoiceNo()).isEqualTo("a");
-			assertThat(e.getModeOfPayment()).isEqualTo("b");	
+			assertThat(e.getModeOfPayment()).isEqualTo("b");
 		}
 	}
 
 	@Test
-	public void updateinvoiceTest() {
+	public void updateInvoiceTest() {
 
 		ObjectNode obj = mapper.createObjectNode();
 
 		obj.put("id", "1");
 		obj.put("invoiceNo", "aa");
 		obj.put("modeOfPayment", "bb");
-		
+
 		invoice.setId(1L);
 		invoice.setInvoiceNo("a");
 		invoice.setModeOfPayment("b");
-		
+
 		Optional<Invoice> invoice2 = Optional.of(invoice);
-		
+
 		Mockito.when(invoiceRepository.findById(1L)).thenReturn(invoice2);
 
 		Invoice invoice3 = new Invoice();
 		invoice3.setId(1L);
 		invoice3.setInvoiceNo("aa");
 		invoice3.setModeOfPayment("bb");
-
 
 		Mockito.when(invoiceRepository.save(invoice)).thenReturn(invoice3);
 

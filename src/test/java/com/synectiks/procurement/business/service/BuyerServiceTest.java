@@ -39,7 +39,7 @@ public class BuyerServiceTest {
 	BuyerService buyerService;
 
 	@Autowired
-	BuyerService buyerServiceAuto;
+	BuyerService buyerServiceAuto; 
 
 	@Mock
 	BuyerRepository buyerRepository;

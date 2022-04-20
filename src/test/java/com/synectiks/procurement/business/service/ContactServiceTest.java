@@ -45,7 +45,7 @@ public class ContactServiceTest {
 	@Mock
 	ContactRepository contactRepository;
 	
-	@Mock
+	@Mock 
 	ContactActivityRepository car;
 
 	private ObjectMapper mapper = new ObjectMapper();
@@ -53,7 +53,7 @@ public class ContactServiceTest {
 	Contact contact = new Contact();
 
 	@Test
-	public void addcontactTest() {
+	public void addContactTest() {
 
 		ObjectNode obj = mapper.createObjectNode();
 
@@ -76,7 +76,7 @@ public class ContactServiceTest {
 	}
 
 	@Test
-	public void searchcontactTest() throws NegativeIdException {
+	public void searchContactTest() throws NegativeIdException {
 
 		contact.setFirstName("a");
 		contact.setEmail("b");
@@ -95,7 +95,7 @@ public class ContactServiceTest {
 	}
 
 	@Test
-	public void updatecontactTest() {
+	public void updateContactTest() {
 
 		ObjectNode obj = mapper.createObjectNode();
 

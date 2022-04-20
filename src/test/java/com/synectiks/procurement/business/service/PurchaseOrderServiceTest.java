@@ -43,7 +43,7 @@ class PurchaseOrderServiceTest {
 	PurchaseOrderService purchaseOrderService;
 	
 	PurchaseOrder purchaseOrder = new PurchaseOrder();
-	
+	 
 	private ObjectMapper mapper = new ObjectMapper();
 	
 	@Mock
@@ -53,7 +53,7 @@ class PurchaseOrderServiceTest {
 	private RequisitionRepository requisitionRepository;
 	
 	@Test
-	void testAddDepartment() {
+	void testAddPurchaseOrder() {
 
 		ObjectNode obj = mapper.createObjectNode();
 		obj.put("poNo", "1234");
@@ -73,7 +73,7 @@ class PurchaseOrderServiceTest {
 	}
 	
 	@Test
-	public void searchCurrencyTest()  {
+	public void searchPurchaseOrderTest()  {
 
 		purchaseOrder.setPoNo("1234");
 		purchaseOrder.setTermsAndConditions("aaa");
@@ -102,7 +102,7 @@ class PurchaseOrderServiceTest {
 	}
 	
 	@Test
-	public void updateCurrencyTest() throws IdNotFoundException, NegativeIdException, DataNotFoundException {
+	public void updatePurchaseOrderTest() throws IdNotFoundException, NegativeIdException, DataNotFoundException {
 
 		ObjectNode obj = mapper.createObjectNode();
 
@@ -115,18 +115,13 @@ class PurchaseOrderServiceTest {
 		purchaseOrder.setPoNo("1234");
 		purchaseOrder.setTermsAndConditions("aaa");
 		purchaseOrder.setNotes("bb");
-		
-		
-		
 		PurchaseOrder purchaseOrder3 = new PurchaseOrder();
+		
 		purchaseOrder3.setId(1L);
 		purchaseOrder3.setPoNo("1234");
 		purchaseOrder3.setTermsAndConditions("aaa");
 		purchaseOrder3.setNotes("bb");
-		
-		
-		
-
+	
 		Optional<PurchaseOrder> purchaseOrder2 = Optional.of(purchaseOrder);
 
 		Mockito.when(purchaseOrderRepository.findById(1L)).thenReturn(purchaseOrder2);

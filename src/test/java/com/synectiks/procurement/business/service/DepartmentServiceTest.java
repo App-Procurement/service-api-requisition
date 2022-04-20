@@ -62,7 +62,7 @@ class DepartmentServiceTest {
 	}
 	
 	@Test
-	public void searchCurrencyTest()  {
+	public void searchDepartmentTest()  {
 
 		department.setName("HR");
 		department.setStatus("Active");
@@ -87,7 +87,7 @@ class DepartmentServiceTest {
 	}
 	
 	@Test
-	public void updateCurrencyTest() {
+	public void updateDepartmentTest() {
 
 		ObjectNode obj = mapper.createObjectNode();
 
@@ -104,9 +104,6 @@ class DepartmentServiceTest {
 		department3.setName("aa");
 		department3.setStatus("bb");
 		
-		
-		
-
 		Optional<Department> department2 = Optional.of(department);
 
 		Mockito.when(departmentRepository.findById(1L)).thenReturn(department2);

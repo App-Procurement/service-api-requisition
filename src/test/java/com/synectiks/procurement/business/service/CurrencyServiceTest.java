@@ -96,12 +96,13 @@ class CurrencyServiceTest {
 		ObjectNode obj = mapper.createObjectNode();
 
 		obj.put("id", "1");
-		currency.setCode("12");
-		currency.setCountryName("ind");
-		currency.setCountryCode("30303");
+		obj.put("code", "aa");
+		obj.put("countryName", "bb");
+		obj.put("countryCode", "cc");
+		
 
 		currency.setCode("aa");
-		currency.setCountryCode("bb");
+		currency.setCountryCode("bb"); 
 		currency.setCountryName("aa");
 		
 		Currency currency3 = new Currency();
@@ -126,7 +127,7 @@ class CurrencyServiceTest {
 			assertThat(currency4.getCountryName()).isEqualTo("aa");
 		} catch (NegativeIdException | IdNotFoundException | DataNotFoundException e) {
 			e.printStackTrace();
-		}
+		} 
 
 	}
 

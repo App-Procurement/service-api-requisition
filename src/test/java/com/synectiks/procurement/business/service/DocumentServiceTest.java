@@ -47,7 +47,7 @@ public class DocumentServiceTest {
 	@Autowired
 	DocumentService documentServiceAuto;
 
-	@Mock
+	@Mock 
 	DocumentRepository documentRepository;
 
 	@Mock
@@ -135,7 +135,6 @@ public class DocumentServiceTest {
 		Optional<Document> document2 = Optional.of(document);
 
 		Mockito.when(documentRepository.findById(1L)).thenReturn(document2);
-
 		Mockito.when(documentRepository.save(document)).thenReturn(document3);
 
 		Document document4;

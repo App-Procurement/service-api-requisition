@@ -93,7 +93,7 @@ public class CommitteeServiceTest {
 	@Test
 	public void updatecommitteeTest() {
 
-		ObjectNode obj = mapper.createObjectNode();
+		ObjectNode obj = mapper.createObjectNode(); 
 
 		obj.put("id", "1");
 		obj.put("name", "aa");
@@ -121,7 +121,7 @@ public class CommitteeServiceTest {
 			assertThat(committee4.getType()).isEqualTo("bb");
 		} catch (NegativeIdException | IdNotFoundException | DataNotFoundException e) {
 			e.printStackTrace();
-		}
+		} 
 
 	}
 }
