@@ -61,8 +61,8 @@ public final class Constants {
     public static String REQUISITION_BUCKET = null;
     public static String REQUISITION_DIRECTORY = null;
     
-    public static String IS_LOCAL_FILE_STORE = null;
-    public static String LOCAL_FILE_PATH = null;
+    public static String IS_LOCAL_FILE_STORE = "Y";
+    public static String LOCAL_FILE_PATH = "requisition_files";
     public static String IS_AWS_FIEL_STORE = null;
     
     public static final String NEGATIVE_ID_ERROR_MESSAGE = "Negative id not allowed";

@@ -338,6 +338,10 @@ public class RequisitionLineItemService {
 			requisitionLineItem.setCreatedBy(requestObj.get("createdBy"));
 			isFilter = true;
 		}
+		if (requestObj.get("status") != null) {
+			requisitionLineItem.setStatus(requestObj.get("status"));
+			isFilter = true;
+		}
 		if (requestObj.get("updatedOn") != null) {
 			Instant instant = Instant.parse(requestObj.get("updatedOn"));
 			requisitionLineItem.setUpdatedOn(instant);

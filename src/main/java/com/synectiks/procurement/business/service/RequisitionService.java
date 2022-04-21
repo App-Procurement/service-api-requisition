@@ -797,13 +797,26 @@ public class RequisitionService {
 			searchDoc.put("sourceOfOrigin", this.getClass().getSimpleName());
 			searchDoc.put("sourceId", String.valueOf(req.getId()));
 //			searchDoc.put("identifier", Constants.IDENTIFIER_REQUISITION_EXTRA_BUDGETORY_FILE);
+			
 			List<Document> docList = documentService.searchDocument(searchDoc);
 			req.setDocumentList(docList);
 
 			Map<String, String> searchLineItem = new HashMap<>();
 			searchLineItem.put("requisitionId", String.valueOf(req.getId()));
+			
 			List<RequisitionLineItem> lineItemList = requisitionLineItemService
 					.searchRequisitionLineItem(searchLineItem);
+			
+			lineItemList.removeIf(e -> e.getStatus().equalsIgnoreCase("DEACTIVE"));
+			
+//			for (RequisitionLineItem e : lineItemList) {
+//				
+//				int i = 0;
+//				if (e.getStatus().equals("DEACTIVE")) {
+//					lineItemList.remove(i);
+//					i++;
+//				}
+//			}
 			req.setLineItemList(lineItemList);
 		}
 
@@ -1027,12 +1040,14 @@ public class RequisitionService {
 
 			if (!org.apache.commons.lang3.StringUtils.isBlank(Constants.IS_LOCAL_FILE_STORE)
 					&& "Y".equalsIgnoreCase(Constants.IS_LOCAL_FILE_STORE)) {
-				File localFile = new File(Constants.LOCAL_FILE_PATH);
+				File localFile = new File("requisition_files");
+				System.out.println("localFile"+localFile);
 				logger.info("Saving requistion file to local: " + getFileName(file));
 				if (!localFile.exists()) {
 					localFile.mkdirs();
 				}
 				String absolutePath = localFile.getAbsolutePath() + File.separatorChar + nameMap.get("fileName");
+				System.out.println("absolutePath"+absolutePath);
 				Path path = Paths.get(absolutePath);
 				Files.write(path, bytes);
 				saveDocument(requisition, absolutePath, null, null, now, file.getSize(), nameMap, identifier);
