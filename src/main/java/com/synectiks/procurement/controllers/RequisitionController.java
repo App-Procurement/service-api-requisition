@@ -1,15 +1,25 @@
 package com.synectiks.procurement.controllers;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.ByteArrayOutputStream;
+import javax.servlet.http.HttpServletResponse;
 
+import org.dom4j.DocumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +34,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.auth.policy.Resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.ibm.icu.text.DateFormat;
+import com.ibm.icu.text.SimpleDateFormat;
 import com.synectiks.procurement.business.service.RequisitionService;
 import com.synectiks.procurement.config.BusinessValidationCodes;
 import com.synectiks.procurement.config.Constants;
@@ -231,5 +244,63 @@ public class RequisitionController {
 		}
 
 	}
+	@GetMapping("/download/requisitionsExtraBudgetary")
+    public ResponseEntity<ByteArrayResource> downloadRequisitionsExtraBudgetary(@RequestParam("extraBudgetaryFile") String extraBudgetaryFile) throws IOException {
+		File file = new File("C:\\mycode\\service-api-requisition\\requisition_files" + File.separator + extraBudgetaryFile);
+
+        HttpHeaders header = new HttpHeaders();
+        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=img.jpg");
+        header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        header.add("Pragma", "no-cache");
+        header.add("Expires", "0");
+
+        Path path = Paths.get(file.getAbsolutePath());
+        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+
+        return ResponseEntity.ok()
+                .headers(header)
+                .contentLength(file.length())
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .body(resource);
+    }
+//	@GetMapping("/download/requisitionsExtraBudgetary")
+//    public ResponseEntity<ByteArrayResource> downloadRequisitionsExtraBudgetary(@RequestParam("extraBudgetaryFile") String extraBudgetaryFile) throws IOException {
+//		File file = new File("C:\\mycode\\service-api-requisition\\requisition_files" + File.separator + extraBudgetaryFile);
+//
+//        HttpHeaders header = new HttpHeaders();
+//        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=img.jpg");
+//        header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+//        header.add("Pragma", "no-cache");
+//        header.add("Expires", "0");
+//
+//        Path path = Paths.get(file.getAbsolutePath());
+//        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+//
+//        return ResponseEntity.ok()
+//                .headers(header)
+//                .contentLength(file.length())
+//                .contentType(MediaType.parseMediaType("application/octet-stream"))
+//                .body(resource);
+//    }
+//	@GetMapping("/download/requisitionsExtraBudgetary")
+//    public ResponseEntity<ByteArrayResource> downloadRequisitionsExtraBudgetary(@RequestParam("extraBudgetaryFile") String extraBudgetaryFile) throws IOException {
+//		File file = new File("C:\\mycode\\service-api-requisition\\requisition_files" + File.separator + extraBudgetaryFile);
+//
+//        HttpHeaders header = new HttpHeaders();
+//        header.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=img.jpg");
+//        header.add("Cache-Control", "no-cache, no-store, must-revalidate");
+//        header.add("Pragma", "no-cache");
+//        header.add("Expires", "0");
+//
+//        Path path = Paths.get(file.getAbsolutePath());
+//        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+//
+//        return ResponseEntity.ok()
+//                .headers(header)
+//                .contentLength(file.length())
+//                .contentType(MediaType.parseMediaType("application/octet-stream"))
+//                .body(resource);
+//    }
+  
 
 }

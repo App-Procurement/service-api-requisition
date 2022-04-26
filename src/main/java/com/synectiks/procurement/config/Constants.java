@@ -57,7 +57,7 @@ public final class Constants {
     public static final String IDENTIFIER_PROFILE_IMAGE = "PROFILE_IMAGE";
     public static final String IDENTIFIER_REQUISITION_EXTRA_BUDGETORY_FILE = "REQUISITION_EXTRA_BUDGETORY_FILE";
     public static final String IDENTIFIER_REQUISITION_LINE_ITEM_FILE = "REQUISITION_LINE_ITEM_FILE";
-    
+    public static final String EXTRA_BUGETARY_FILE_PATH = "C:\\mycode\\service-api-requisition\\requisition_files";
     public static String REQUISITION_BUCKET = null;
     public static String REQUISITION_DIRECTORY = null;
     
@@ -68,6 +68,8 @@ public final class Constants {
     public static final String NEGATIVE_ID_ERROR_MESSAGE = "Negative id not allowed";
     public static final String ID_NOT_FOUND_ERROR_MESSAGE = "Id not found";
     public static final String DATA_NOT_FOUND_ERROR_MESSAGE = "Data not found";
+    
+
     
     private Constants() {
     }
