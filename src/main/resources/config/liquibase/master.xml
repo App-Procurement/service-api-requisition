@@ -60,4 +60,5 @@
     <include file="config/liquibase/changelog/20210722054055_added_entity_constraints_CommitteeActivity.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20210901100449_added_entity_constraints_VendorRequisitionBucket.xml" relativeToChangelogFile="false"/>
 	<include file="config/liquibase/changelog/20210929105434_added_entity_constraints_CommitteeAndMemberLink.xml" relativeToChangelogFile="false"/>
+	<include file="config/liquibase/changelog/20220429062836_added_entity_ApprovalRules.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>

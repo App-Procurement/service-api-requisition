@@ -47,6 +47,7 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.config.Constants;
+import com.synectiks.procurement.domain.ApprovalRules;
 import com.synectiks.procurement.domain.Currency;
 import com.synectiks.procurement.domain.Department;
 import com.synectiks.procurement.domain.Document;
@@ -57,6 +58,7 @@ import com.synectiks.procurement.domain.RequisitionLineItemActivity;
 import com.synectiks.procurement.domain.Rules;
 import com.synectiks.procurement.domain.Vendor;
 import com.synectiks.procurement.domain.VendorRequisitionBucket;
+import com.synectiks.procurement.repository.ApprovalRulesRepository;
 import com.synectiks.procurement.repository.RequisitionActivityRepository;
 import com.synectiks.procurement.repository.RequisitionLineItemRepository;
 import com.synectiks.procurement.repository.RequisitionRepository;
@@ -117,6 +119,9 @@ public class RequisitionService {
 
 	@Autowired
 	private XformAwsS3Config xformAwsS3Config;
+
+	@Autowired
+	private ApprovalRulesRepository approvalRulesRepository;
 
 	public Requisition getRequisition(Long id) {
 		logger.info("Getting requisition by id: " + id);
@@ -797,18 +802,18 @@ public class RequisitionService {
 			searchDoc.put("sourceOfOrigin", this.getClass().getSimpleName());
 			searchDoc.put("sourceId", String.valueOf(req.getId()));
 //			searchDoc.put("identifier", Constants.IDENTIFIER_REQUISITION_EXTRA_BUDGETORY_FILE);
-			
+
 			List<Document> docList = documentService.searchDocument(searchDoc);
 			req.setDocumentList(docList);
 
 			Map<String, String> searchLineItem = new HashMap<>();
 			searchLineItem.put("requisitionId", String.valueOf(req.getId()));
-			
+
 			List<RequisitionLineItem> lineItemList = requisitionLineItemService
 					.searchRequisitionLineItem(searchLineItem);
-			
+
 			lineItemList.removeIf(e -> e.getStatus().equalsIgnoreCase("DEACTIVE"));
-			
+
 //			for (RequisitionLineItem e : lineItemList) {
 //				
 //				int i = 0;
@@ -1019,12 +1024,26 @@ public class RequisitionService {
 		}
 
 		Requisition requisition = req.get();
-		requisition.setStatus(Constants.PROGRESS_STAGE_APPROVED);
-		requisition = requisitionRepository.save(requisition);
-		saveRequisitionActivity(requisition);
-		logger.info("Requisition approved successfully");
-		return Boolean.TRUE;
 
+		if (obj.get("role") != null) {
+			ApprovalRules approvalRule = approvalRulesRepository.findByRole(obj.get("role").asText());
+
+			Integer minLimit = approvalRule.getMinLimit();
+			Integer maxLimit = approvalRule.getMaxLimit();
+
+			Integer totalPrice = requisition.getTotalPrice();
+			
+			if (minLimit < totalPrice && maxLimit > totalPrice) {	
+				requisition.setStatus(Constants.PROGRESS_STAGE_APPROVED);
+				requisition = requisitionRepository.save(requisition);
+				saveRequisitionActivity(requisition);
+				logger.info("Requisition approved successfully");
+				return Boolean.TRUE;
+			}
+
+		}
+		return Boolean.FALSE;
+	
 	}
 
 	@Transactional
@@ -1041,13 +1060,13 @@ public class RequisitionService {
 			if (!org.apache.commons.lang3.StringUtils.isBlank(Constants.IS_LOCAL_FILE_STORE)
 					&& "Y".equalsIgnoreCase(Constants.IS_LOCAL_FILE_STORE)) {
 				File localFile = new File("requisition_files");
-				System.out.println("localFile"+localFile);
+				System.out.println("localFile" + localFile);
 				logger.info("Saving requistion file to local: " + getFileName(file));
 				if (!localFile.exists()) {
 					localFile.mkdirs();
 				}
 				String absolutePath = localFile.getAbsolutePath() + File.separatorChar + nameMap.get("fileName");
-				System.out.println("absolutePath"+absolutePath);
+				System.out.println("absolutePath" + absolutePath);
 				Path path = Paths.get(absolutePath);
 				Files.write(path, bytes);
 				saveDocument(requisition, absolutePath, null, null, now, file.getSize(), nameMap, identifier);

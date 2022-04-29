@@ -380,6 +380,17 @@ entity RolesRulesLink{
     updatedBy String 
 }
 
+entity ApprovalRules{
+	role String
+    minLimit Integer
+    maxLimit Integer
+    createdOn Instant
+    createdBy String
+    updatedOn Instant
+    updatedBy String
+    status String   
+}
+
 relationship OneToOne {
 	Requisition{department} to Department,
     Requisition{currency} to Currency,
