@@ -40,6 +40,7 @@ import com.synectiks.procurement.domain.VendorRequisitionBucket;
 import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
 import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
 import com.synectiks.procurement.web.rest.errors.NegativeIdException;
+import com.synectiks.procurement.web.rest.errors.RoleApproveException;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -228,10 +229,17 @@ public class RequisitionController {
 		} catch (IdNotFoundException e) {
 			logger.error("Approve requisition failed. IdNotFoundException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.ID_NOT_FOUND.value()).body(null);
-		} catch (NegativeIdException e) {
+		} 
+		catch (RoleApproveException e) {
+			logger.error("Approve requisition failed. RoleApproveException: ", e.getMessage());
+			return ResponseEntity.status(BusinessValidationCodes.NO_APPROVAL_RIGHTS.value()).body(null);
+		} 
+		
+		catch (NegativeIdException e) {
 			logger.error("Approve requisition failed. NegativeIdException: ", e.getMessage());
 			return ResponseEntity.status(BusinessValidationCodes.NEGATIVE_ID_NOT_ALLOWED.value()).body(null);
-		} catch (Exception e) {
+		} 
+		catch (Exception e) {
 			logger.error("Approve requisition failed. Exception: ", e);
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
 		}

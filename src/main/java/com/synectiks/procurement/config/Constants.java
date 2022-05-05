@@ -68,6 +68,7 @@ public final class Constants {
     public static final String NEGATIVE_ID_ERROR_MESSAGE = "Negative id not allowed";
     public static final String ID_NOT_FOUND_ERROR_MESSAGE = "Id not found";
     public static final String DATA_NOT_FOUND_ERROR_MESSAGE = "Data not found";
+    public static final String APPROVE_ROLES_AUTHORIZED = "hava no rights to approve requisition";
     
 
     

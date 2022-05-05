@@ -67,6 +67,7 @@ import com.synectiks.procurement.util.DateFormatUtil;
 import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
 import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
 import com.synectiks.procurement.web.rest.errors.NegativeIdException;
+import com.synectiks.procurement.web.rest.errors.RoleApproveException;
 
 @Service
 public class RequisitionService {
@@ -1004,7 +1005,7 @@ public class RequisitionService {
 //
 //	}
 
-	public Boolean approveRequisition(ObjectNode obj) throws IdNotFoundException, NegativeIdException {
+	public Boolean approveRequisition(ObjectNode obj) throws IdNotFoundException, NegativeIdException, RoleApproveException {
 		logger.info("Getting requisition by id: " + obj);
 
 		if (obj.get("requisitionId") == null) {
@@ -1039,6 +1040,10 @@ public class RequisitionService {
 				saveRequisitionActivity(requisition);
 				logger.info("Requisition approved successfully");
 				return Boolean.TRUE;
+			}
+			else {
+				logger.error("Requisition could not be approved.");
+				throw new RoleApproveException(Constants.APPROVE_ROLES_AUTHORIZED);
 			}
 
 		}
