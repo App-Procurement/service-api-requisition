@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.transaction.Transactional;
@@ -656,7 +657,7 @@ public class RequisitionService {
 			}
 
 			requisition.setId(Long.parseLong(requestObj.get("id")));
-			isFilter = true;
+		 	isFilter = true;
 		}
 
 		if (!org.apache.commons.lang3.StringUtils.isBlank(requestObj.get("reqNo"))) {
@@ -721,8 +722,9 @@ public class RequisitionService {
 			requisition.setCreatedOn(instant);
 			isFilter = true;
 		}
-		if (requestObj.get("createdBy") != null) {
-			requisition.setCreatedBy(requestObj.get("createdBy"));
+	
+		if (requestObj.get("userId") != null) {
+			requisition.setCreatedBy(requestObj.get("userId"));
 			isFilter = true;
 		}
 		if (requestObj.get("updatedOn") != null) {
@@ -748,6 +750,14 @@ public class RequisitionService {
 		} else {
 			list = this.requisitionRepository.findAll(Sort.by(Direction.DESC, "id"));
 		}
+		
+		if (requestObj.get("role") != null) {
+			ApprovalRules approvalRules = approvalRulesRepository.findByRole(requestObj.get("role"));
+			if (!Objects.isNull(approvalRules)) {
+				list = list.stream().filter(i -> i.getTotalPrice() <= approvalRules.getMaxLimit()).toList();
+			}
+		}
+
 
 		Date fromDate = null;
 		boolean isDateFilter = false;
