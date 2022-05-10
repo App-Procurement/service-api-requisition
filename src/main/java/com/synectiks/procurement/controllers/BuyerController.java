@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +17,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -25,6 +28,7 @@ import com.synectiks.procurement.business.service.BuyerService;
 import com.synectiks.procurement.config.BusinessValidationCodes;
 import com.synectiks.procurement.config.Constants;
 import com.synectiks.procurement.domain.Buyer;
+import com.synectiks.procurement.domain.CommitteeMember;
 import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
 import com.synectiks.procurement.web.rest.errors.IdNotFoundException;
 import com.synectiks.procurement.web.rest.errors.NegativeIdException;
@@ -42,12 +46,13 @@ public class BuyerController {
 	BuyerService buyerService;
 
 	@ApiOperation(value = "Create a new buyer")
-	@PostMapping("/buyer")
-	public ResponseEntity<Buyer> addBuyer(@RequestBody ObjectNode obj)  {
+	@RequestMapping(value = "/buyer", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Buyer> addBuyer(@RequestParam("obj") String obj,
+			@RequestParam(name = "file", required = false) MultipartFile file)  {
 		logger.info("Request to add a buyer");
 		try {
 		
-		Buyer  buyer = buyerService.addBuyer(obj);
+		Buyer  buyer = buyerService.addBuyer(obj,file);
 		return ResponseEntity.status(HttpStatus.OK).body(buyer);
 		}
 		catch (Exception e) {

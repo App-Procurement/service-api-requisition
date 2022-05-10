@@ -2,7 +2,12 @@ package com.synectiks.procurement.domain;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * A Buyer.
@@ -11,255 +16,272 @@ import javax.persistence.*;
 @Table(name = "buyer")
 public class Buyer implements Serializable {
 
-  private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
-  @SequenceGenerator(name = "sequenceGenerator")
-  private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+	@SequenceGenerator(name = "sequenceGenerator")
+	private Long id;
 
-  @Column(name = "first_name")
-  private String firstName;
+	@Column(name = "first_name")
+	private String firstName;
 
-  @Column(name = "middle_name")
-  private String middleName;
+	@Column(name = "middle_name")
+	private String middleName;
 
-  @Column(name = "last_name")
-  private String lastName;
+	@Column(name = "last_name")
+	private String lastName;
 
-  @Column(name = "phone_number")
-  private String phoneNumber;
+	@Column(name = "phone_number")
+	private String phoneNumber;
 
-  @Column(name = "email")
-  private String email;
+	@Column(name = "email")
+	private String email;
 
-  @Column(name = "address")
-  private String address;
+	@Column(name = "address")
+	private String address;
 
-  @Column(name = "zip_code")
-  private String zipCode;
+	@Column(name = "zip_code")
+	private String zipCode;
 
-  @Column(name = "status")
-  private String status;
+	@Column(name = "status")
+	private String status;
 
-  @Column(name = "created_on")
-  private Instant createdOn;
+	@Column(name = "created_on")
+	private Instant createdOn;
 
-  @Column(name = "created_by")
-  private String createdBy;
+	@Column(name = "created_by")
+	private String createdBy;
 
-  @Column(name = "updated_on")
-  private Instant updatedOn;
+	@Column(name = "updated_on")
+	private Instant updatedOn;
 
-  @Column(name = "updated_by")
-  private String updatedBy;
+	@Column(name = "updated_by")
+	private String updatedBy;
 
-  // jhipster-needle-entity-add-field - JHipster will add fields here
-  public Long getId() {
-    return id;
-  }
+	// jhipster-needle-entity-add-field - JHipster will add fields here
 
-  public void setId(Long id) {
-    this.id = id;
-  }
+	@Transient
+	@JsonProperty
+	private byte[] profileImage;
 
-  public Buyer id(Long id) {
-    this.id = id;
-    return this;
-  }
+	@Transient
+	@JsonProperty
+	private List<Document> documentList;
 
-  public String getFirstName() {
-    return this.firstName;
-  }
+	public List<Document> getDocumentList() {
+		return documentList;
+	}
 
-  public Buyer firstName(String firstName) {
-    this.firstName = firstName;
-    return this;
-  }
+	public void setDocumentList(List<Document> documentList) {
+		this.documentList = documentList;
+	}
 
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
-  }
+	public Long getId() {
+		return id;
+	}
 
-  public String getMiddleName() {
-    return this.middleName;
-  }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-  public Buyer middleName(String middleName) {
-    this.middleName = middleName;
-    return this;
-  }
+	public Buyer id(Long id) {
+		this.id = id;
+		return this;
+	}
 
-  public void setMiddleName(String middleName) {
-    this.middleName = middleName;
-  }
+	public String getFirstName() {
+		return this.firstName;
+	}
 
-  public String getLastName() {
-    return this.lastName;
-  }
+	public Buyer firstName(String firstName) {
+		this.firstName = firstName;
+		return this;
+	}
 
-  public Buyer lastName(String lastName) {
-    this.lastName = lastName;
-    return this;
-  }
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
 
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
-  }
+	public String getMiddleName() {
+		return this.middleName;
+	}
 
-  public String getPhoneNumber() {
-    return this.phoneNumber;
-  }
+	public Buyer middleName(String middleName) {
+		this.middleName = middleName;
+		return this;
+	}
 
-  public Buyer phoneNumber(String phoneNumber) {
-    this.phoneNumber = phoneNumber;
-    return this;
-  }
+	public void setMiddleName(String middleName) {
+		this.middleName = middleName;
+	}
 
-  public void setPhoneNumber(String phoneNumber) {
-    this.phoneNumber = phoneNumber;
-  }
+	public String getLastName() {
+		return this.lastName;
+	}
 
-  public String getEmail() {
-    return this.email;
-  }
+	public Buyer lastName(String lastName) {
+		this.lastName = lastName;
+		return this;
+	}
 
-  public Buyer email(String email) {
-    this.email = email;
-    return this;
-  }
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
 
-  public void setEmail(String email) {
-    this.email = email;
-  }
+	public String getPhoneNumber() {
+		return this.phoneNumber;
+	}
 
-  public String getAddress() {
-    return this.address;
-  }
+	public Buyer phoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+		return this;
+	}
 
-  public Buyer address(String address) {
-    this.address = address;
-    return this;
-  }
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
 
-  public void setAddress(String address) {
-    this.address = address;
-  }
+	public String getEmail() {
+		return this.email;
+	}
 
-  public String getZipCode() {
-    return this.zipCode;
-  }
+	public Buyer email(String email) {
+		this.email = email;
+		return this;
+	}
 
-  public Buyer zipCode(String zipCode) {
-    this.zipCode = zipCode;
-    return this;
-  }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-  public void setZipCode(String zipCode) {
-    this.zipCode = zipCode;
-  }
+	public String getAddress() {
+		return this.address;
+	}
 
-  public String getStatus() {
-    return this.status;
-  }
+	public Buyer address(String address) {
+		this.address = address;
+		return this;
+	}
 
-  public Buyer status(String status) {
-    this.status = status;
-    return this;
-  }
+	public void setAddress(String address) {
+		this.address = address;
+	}
 
-  public void setStatus(String status) {
-    this.status = status;
-  }
+	public String getZipCode() {
+		return this.zipCode;
+	}
 
-  public Instant getCreatedOn() {
-    return this.createdOn;
-  }
+	public Buyer zipCode(String zipCode) {
+		this.zipCode = zipCode;
+		return this;
+	}
 
-  public Buyer createdOn(Instant createdOn) {
-    this.createdOn = createdOn;
-    return this;
-  }
+	public void setZipCode(String zipCode) {
+		this.zipCode = zipCode;
+	}
 
-  public void setCreatedOn(Instant createdOn) {
-    this.createdOn = createdOn;
-  }
+	public String getStatus() {
+		return this.status;
+	}
 
-  public String getCreatedBy() {
-    return this.createdBy;
-  }
+	public Buyer status(String status) {
+		this.status = status;
+		return this;
+	}
 
-  public Buyer createdBy(String createdBy) {
-    this.createdBy = createdBy;
-    return this;
-  }
+	public void setStatus(String status) {
+		this.status = status;
+	}
 
-  public void setCreatedBy(String createdBy) {
-    this.createdBy = createdBy;
-  }
+	public Instant getCreatedOn() {
+		return this.createdOn;
+	}
 
-  public Instant getUpdatedOn() {
-    return this.updatedOn;
-  }
+	public Buyer createdOn(Instant createdOn) {
+		this.createdOn = createdOn;
+		return this;
+	}
 
-  public Buyer updatedOn(Instant updatedOn) {
-    this.updatedOn = updatedOn;
-    return this;
-  }
+	public void setCreatedOn(Instant createdOn) {
+		this.createdOn = createdOn;
+	}
 
-  public void setUpdatedOn(Instant updatedOn) {
-    this.updatedOn = updatedOn;
-  }
+	public String getCreatedBy() {
+		return this.createdBy;
+	}
 
-  public String getUpdatedBy() {
-    return this.updatedBy;
-  }
+	public Buyer createdBy(String createdBy) {
+		this.createdBy = createdBy;
+		return this;
+	}
 
-  public Buyer updatedBy(String updatedBy) {
-    this.updatedBy = updatedBy;
-    return this;
-  }
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
 
-  public void setUpdatedBy(String updatedBy) {
-    this.updatedBy = updatedBy;
-  }
+	public Instant getUpdatedOn() {
+		return this.updatedOn;
+	}
 
-  // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
+	public Buyer updatedOn(Instant updatedOn) {
+		this.updatedOn = updatedOn;
+		return this;
+	}
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (!(o instanceof Buyer)) {
-      return false;
-    }
-    return id != null && id.equals(((Buyer) o).id);
-  }
+	public void setUpdatedOn(Instant updatedOn) {
+		this.updatedOn = updatedOn;
+	}
 
-  @Override
-  public int hashCode() {
-    // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
-    return getClass().hashCode();
-  }
+	public String getUpdatedBy() {
+		return this.updatedBy;
+	}
 
-  // prettier-ignore
-    @Override
-    public String toString() {
-        return "Buyer{" +
-            "id=" + getId() +
-            ", firstName='" + getFirstName() + "'" +
-            ", middleName='" + getMiddleName() + "'" +
-            ", lastName='" + getLastName() + "'" +
-            ", phoneNumber='" + getPhoneNumber() + "'" +
-            ", email='" + getEmail() + "'" +
-            ", address='" + getAddress() + "'" +
-            ", zipCode='" + getZipCode() + "'" +
-            ", status='" + getStatus() + "'" +
-            ", createdOn='" + getCreatedOn() + "'" +
-            ", createdBy='" + getCreatedBy() + "'" +
-            ", updatedOn='" + getUpdatedOn() + "'" +
-            ", updatedBy='" + getUpdatedBy() + "'" +
-            "}";
-    }
+	public Buyer updatedBy(String updatedBy) {
+		this.updatedBy = updatedBy;
+		return this;
+	}
+
+	public void setUpdatedBy(String updatedBy) {
+		this.updatedBy = updatedBy;
+	}
+
+	// jhipster-needle-entity-add-getters-setters - JHipster will add getters and
+	// setters here
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof Buyer)) {
+			return false;
+		}
+		return id != null && id.equals(((Buyer) o).id);
+	}
+
+	@Override
+	public int hashCode() {
+		// see
+		// https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+		return getClass().hashCode();
+	}
+
+	public byte[] getProfileImage() {
+		return profileImage;
+	}
+
+	public void setProfileImage(byte[] profileImage) {
+		this.profileImage = profileImage;
+	}
+
+	@Override
+	public String toString() {
+		return "Buyer [id=" + id + ", firstName=" + firstName + ", middleName=" + middleName + ", lastName=" + lastName
+				+ ", phoneNumber=" + phoneNumber + ", email=" + email + ", address=" + address + ", zipCode=" + zipCode
+				+ ", status=" + status + ", createdOn=" + createdOn + ", createdBy=" + createdBy + ", updatedOn="
+				+ updatedOn + ", updatedBy=" + updatedBy + ", profileImage=" + Arrays.toString(profileImage)
+				+ ", documentList=" + documentList + "]";
+	}
+
 }
