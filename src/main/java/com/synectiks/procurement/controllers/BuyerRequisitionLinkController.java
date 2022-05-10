@@ -53,14 +53,13 @@ public class BuyerRequisitionLinkController {
 	}
 
 	@ApiOperation(value = "Search buyerRequisitionLink")
-	@GetMapping("/buyerRequisitionLink/{requisitionId}")
+	@GetMapping("/buyerRequisitionLink")
 	public ResponseEntity<List<BuyerRequisitionLink>> searchbuyerRequisitionLink(
-			@RequestParam Map<String, String> requestObj,
-			@PathVariable Integer requisitionId) {
+			@RequestParam Map<String, String> requestObj) {
 		logger.info("Request to search buyerRequisitionLink on given filter criteria");
 		List<BuyerRequisitionLink> list;
 		try {
-			list = buyerRequisitionLinkService.searchBuyerRequisitionLink(requestObj,requisitionId);
+			list = buyerRequisitionLinkService.searchBuyerRequisitionLink(requestObj);
 			return ResponseEntity.status(HttpStatus.OK).body(list);
 		} catch (NegativeIdException e) {
 			logger.error("Search buyerRequisitionLink failed. NegativeIdException: ", e.getMessage());

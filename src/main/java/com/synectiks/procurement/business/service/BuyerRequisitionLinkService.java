@@ -80,17 +80,31 @@ public class BuyerRequisitionLinkService {
 		return brlList;
 	}
 
-	public List<BuyerRequisitionLink> searchBuyerRequisitionLink(@RequestParam Map<String, String> requestObj,
-			Integer requisitionId) throws NegativeIdException, ParseException {
+	public List<BuyerRequisitionLink> searchBuyerRequisitionLink(@RequestParam Map<String, String> requestObj)
+			throws NegativeIdException, ParseException, IOException {
 		BuyerRequisitionLink buyerRequisitionLink = new BuyerRequisitionLink();
 		boolean isFilter = false;
 
-		Map<String, String> rm = new HashMap<String, String>();
-		rm.put("id", requisitionId.toString());
-		List<Requisition> rList = requisitionService.searchRequisition(rm);
+		if (requestObj.get("requisitionId") != null) {
+			Map<String, String> rm = new HashMap<String, String>();
+			rm.put("id", requestObj.get("requisitionId"));
+			List<Requisition> rList = requisitionService.searchRequisition(rm);
 
-		if (rList.get(0) != null) {
-			buyerRequisitionLink.setRequisition(rList.get(0));
+			if (rList.get(0) != null) {
+				buyerRequisitionLink.setRequisition(rList.get(0));
+				isFilter = true;
+			}
+		}
+
+		if (requestObj.get("buyerId") != null) {
+			Map<String, String> bm = new HashMap<String, String>();
+			bm.put("id", requestObj.get("buyerId"));
+			List<Buyer> bList = buyerService.searchBuyer(bm);
+
+			if (bList.get(0) != null) {
+				buyerRequisitionLink.setBuyer(bList.get(0));
+				isFilter = true;
+			}
 		}
 
 		if (requestObj.get("id") != null) {
@@ -103,14 +117,6 @@ public class BuyerRequisitionLinkService {
 			isFilter = true;
 		}
 
-		if (requestObj.get("firstName") != null) {
-			buyerRequisitionLink.setRequisition(null);
-			isFilter = true;
-		}
-		if (requestObj.get("firstName") != null) {
-			buyerRequisitionLink.setBuyer(null);
-			isFilter = true;
-		}
 		if (requestObj.get("createdOn") != null) {
 			Instant inst = Instant.parse(requestObj.get("createdOn"));
 			buyerRequisitionLink.setCreatedOn(inst);
