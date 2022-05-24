@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -754,7 +756,7 @@ public class RequisitionService {
 		if (requestObj.get("role") != null) {
 			ApprovalRules approvalRules = approvalRulesRepository.findByRole(requestObj.get("role"));
 			if (!Objects.isNull(approvalRules)) {
-				list = list.stream().filter(i -> i.getTotalPrice() <= approvalRules.getMaxLimit()).toList();
+				list = list.stream().filter(i -> i.getTotalPrice() <= approvalRules.getMaxLimit()).collect(Collectors.toList());
 			}
 		}
 
