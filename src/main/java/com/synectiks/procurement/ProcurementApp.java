@@ -1,6 +1,7 @@
 package com.synectiks.procurement;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,6 +9,9 @@ import java.util.Collection;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
+import org.graylog2.gelfclient.GelfConfiguration;
+import org.graylog2.gelfclient.GelfTransports;
+import org.graylog2.gelfclient.transport.GelfTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,15 +19,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.synectiks.procurement.business.service.XformAwsS3Config;
 import com.synectiks.procurement.config.ApplicationProperties;
 import com.synectiks.procurement.config.Constants;
@@ -37,8 +36,10 @@ public class ProcurementApp {
 	
     private static final Logger log = LoggerFactory.getLogger(ProcurementApp.class);
 
+    private static ConfigurableApplicationContext ctx = null;
     private final Environment env;
-
+    private static String gelfHost;
+    
     public ProcurementApp(Environment env) {
         this.env = env;
     }
@@ -71,7 +72,10 @@ public class ProcurementApp {
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(ProcurementApp.class);
         DefaultProfileUtil.addDefaultProfile(app);
-        Environment env = app.run(args).getEnvironment();
+//        Environment env = app.run(args).getEnvironment();
+        ctx  = app.run(args);
+        Environment env = ctx.getEnvironment();
+        gelfHost = env.getProperty("gelf.server");
         updateConstants(env);
         logApplicationStartup(env);
     }
@@ -117,6 +121,28 @@ public class ProcurementApp {
         		.region(env.getProperty("aws.region"))
         		.build();
     }
+    
+    @Bean
+    @Autowired
+	public GelfConfiguration getGelfConfiguration() {
+		String host = env.getProperty("gelf.server");
+		int port = Integer.parseInt(env.getProperty("gelf.port"));
+		
+		return new GelfConfiguration(new InetSocketAddress(host, port))
+        .transport(GelfTransports.TCP)
+        .queueSize(Integer.parseInt(env.getProperty("gelf.queue-size")))
+        .connectTimeout(Integer.parseInt(env.getProperty("gelf.connect-timeout")))
+        .reconnectDelay(Integer.parseInt(env.getProperty("gelf.reconnect-delay")))
+        .tcpNoDelay(true)
+        .sendBufferSize(Integer.parseInt(env.getProperty("gelf.send-buffer-size")));
+	}
+    
+    @Bean
+    @Autowired
+	public GelfTransport getGelfTransport() {
+		return GelfTransports.create(getGelfConfiguration());
+	}
+    
 //    
 //    @Bean
 //    @Autowired
@@ -130,5 +156,13 @@ public class ProcurementApp {
     	Constants.IS_LOCAL_FILE_STORE = env.getProperty("file-storage.local-storage");
     	Constants.LOCAL_FILE_PATH = env.getProperty("file-storage.local-file-path");
     	Constants.IS_AWS_FIEL_STORE = env.getProperty("file-storage.aws-storage");
+    }
+    
+    public static <T> T getBean(Class<T> cls) {
+		return ctx.getBean(cls);
+	}
+    
+    public static String getGelfHost() {
+    	return gelfHost;
     }
 }

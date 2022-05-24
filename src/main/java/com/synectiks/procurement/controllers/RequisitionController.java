@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.core.io.ByteArrayResource;
@@ -35,6 +34,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.synectiks.procurement.business.service.RequisitionService;
 import com.synectiks.procurement.config.BusinessValidationCodes;
 import com.synectiks.procurement.config.Constants;
+import com.synectiks.procurement.config.CustomLogger;
 import com.synectiks.procurement.domain.Requisition;
 import com.synectiks.procurement.domain.VendorRequisitionBucket;
 import com.synectiks.procurement.web.rest.errors.DataNotFoundException;
@@ -49,7 +49,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping("/api")
 public class RequisitionController {
-	private static final Logger logger = LoggerFactory.getLogger(RequisitionController.class);
+	private static final CustomLogger logger = CustomLogger.getLogger(RequisitionController.class);
 
 	@Autowired
 	private RequisitionService requisitionService;

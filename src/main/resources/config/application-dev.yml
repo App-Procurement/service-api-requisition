@@ -76,7 +76,17 @@ aws:
   access-key: ${ACCESS_KEY}
   secret-key: ${SECRET_KEY}
   region: ${REGION}
- 
+
+gelf:
+  server: ${GELF_SERVER}
+  port: ${GELF_API_PORT}
+  message-transport-type: ${MESSAGE_TRANSPORT_TYPE}
+  queue-size: ${QUEUE_SIZE}
+  connect-timeout: ${CONNECT_TIMEOUT}
+  reconnect-delay: ${RECONNECT_DELAY}
+  tcp-no-delay: ${TCP_NO_DELAY}
+  send-buffer-size: ${SEND_BUFFER_SIZE}
+   
 requisition:
   aws:
     bucket: ${REQUISITION_BUCKET}
