@@ -38,7 +38,7 @@ SERVICE_JAR=${SERVICE_JAR:=target/procurement-0.0.1-SNAPSHOT.jar}
 PROCUREMENT_PID=${PROCUREMENT_PID:=procurement_service.pid}
 LOG_FILE=${LOG_FILE:=console.log}
 #LOG4J=${LOG4J:=}
-DEFAULT_JAVA_OPTS="--SERVER_PORT=7050 -Dspring.profiles.active=dev --PSQL_HOST=localhost --PSQL_PORT=5432 --PSQL_DB=procurementdev --PSQL_USER=postgres --PSQL_PSWD=postgres -Djdk.tls.acknowledgeCloseNotify=true -Xms1g -Xmx1g -XX:NewRatio=1 -XX:+ResizeTLAB -XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSClassUnloadingEnabled -XX:-OmitStackTraceInFastThrow"
+DEFAULT_JAVA_OPTS="--SERVER_PORT=7050 -Dspring.profiles.active=dev --PSQL_HOST=postgresql.ch8wfucynpvq.us-east-1.rds.amazonaws.com --PSQL_PORT=5431 --PSQL_DB=procurementdev --PSQL_USER=postgres --PSQL_PSWD=P0$tGr3$&s3qua1$n3t!k5 -Djdk.tls.acknowledgeCloseNotify=true -Xms1g -Xmx1g -XX:NewRatio=1 -XX:+ResizeTLAB -XX:+UseConcMarkSweepGC -XX:+CMSConcurrentMTEnabled -XX:+CMSClassUnloadingEnabled -XX:-OmitStackTraceInFastThrow"
 
 if $JAVA_CMD -XX:+PrintFlagsFinal 2>&1 |grep -q UseParNewGC; then
         DEFAULT_JAVA_OPTS="${DEFAULT_JAVA_OPTS} -XX:+UseParNewGC"
